@@ -1,0 +1,128 @@
+site_name: Docustudy
+theme:
+  custom_dir: .overrides
+  name: material
+  palette: 
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+      primary: teal 
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: black 
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.footer
+    - navigation.top
+    - navigation.indexes
+    - content.code.copy
+  icon: 
+    admonition: 
+      abstract: fontawesome/solid/code 
+  
+nav:
+  - Home: 'index.md' 
+  ##############################################################################
+  #
+  #   Low level design
+  #
+  ##############################################################################
+  - Low Level Design: 
+    - 'low-level-design/index.md'
+    - Object Oriented Programming:
+      - 'low-level-design/object-oriented-programming/index.md'
+      - Structure: 'low-level-design/object-oriented-programming/structure.md'
+      - Principles: 'low-level-design/object-oriented-programming/principles.md'
+    - Design Patterns: 
+      - 'low-level-design/design-patterns/index.md'
+      - Creational Patterns:
+        - 'low-level-design/design-patterns/creational/abstract-factory.md'  
+        - 'low-level-design/design-patterns/creational/builder.md'  
+        - 'low-level-design/design-patterns/creational/factory-method.md'  
+        - 'low-level-design/design-patterns/creational/prototype.md'  
+        - 'low-level-design/design-patterns/creational/singleton.md'  
+      - Behavioral Patterns:
+        - 'low-level-design/design-patterns/behavioral/chain-of-responsibility.md'  
+        - 'low-level-design/design-patterns/behavioral/command.md'  
+        - 'low-level-design/design-patterns/behavioral/iterator.md'  
+        - 'low-level-design/design-patterns/behavioral/mediator.md'  
+        - 'low-level-design/design-patterns/behavioral/memento.md'  
+        - 'low-level-design/design-patterns/behavioral/observer.md'  
+        - 'low-level-design/design-patterns/behavioral/state.md'  
+        - 'low-level-design/design-patterns/behavioral/strategy.md'  
+        - 'low-level-design/design-patterns/behavioral/template-method.md'  
+        - 'low-level-design/design-patterns/behavioral/visitor.md'  
+      - Structural Patterns: 
+        - 'low-level-design/design-patterns/structural/adapter.md'  
+        - 'low-level-design/design-patterns/structural/bridge.md'  
+        - 'low-level-design/design-patterns/structural/composite.md'  
+        - 'low-level-design/design-patterns/structural/decorator.md'  
+        - 'low-level-design/design-patterns/structural/facade.md'  
+        - 'low-level-design/design-patterns/structural/flyweight.md'  
+        - 'low-level-design/design-patterns/structural/proxy.md'  
+    - SOLID: 
+      - 'low-level-design/solid/index.md'
+      - Single Responsibility Example: 'low-level-design/solid/srp/srp.md'
+      - Open-Closed Example: 'low-level-design/solid/ocp/ocp.md' 
+      - Liskov Substitution Example: 'low-level-design/solid/lsp/lsp.md' 
+      - Interface Segregation Example: 'low-level-design/solid/isp/isp.md' 
+      - Dependency Inversion Example: 'low-level-design/solid/dip/dip.md' 
+  ##############################################################################
+  #
+  #   System design
+  #
+  ##############################################################################
+  - System Design:
+    - 'system-design/index.md'
+    - Basic Topics: 'system-design/basics.md'
+    - CAP Theorem: 'system-design/cap.md'
+    - Scaling Databases:
+      - 'system-design/scaling-databases/index.md'
+      - ACID vs BASE: 'system-design/scaling-databases/acid-vs-base.md'
+      - Scaling Techniques: 
+        - 'system-design/scaling-databases/scaling-techniques/index.md'
+        - Replication: 'system-design/scaling-databases/scaling-techniques/replication.md' 
+        - Partition: 'system-design/scaling-databases/scaling-techniques/partition.md' 
+        - Other: 'system-design/scaling-databases/scaling-techniques/other.md' 
+##############################################################################
+#
+#   Extensions
+#
+##############################################################################
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true 
+  - md_in_html
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+extra_css:
+  - assets/stylesheets/extra.css
