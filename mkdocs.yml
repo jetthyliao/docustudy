@@ -45,11 +45,11 @@ nav:
     - Design Patterns: 
       - 'low-level-design/design-patterns/index.md'
       - Creational Patterns:
-        - 'low-level-design/design-patterns/creational/abstract-factory.md'  
-        - 'low-level-design/design-patterns/creational/builder.md'  
         - 'low-level-design/design-patterns/creational/factory-method.md'  
-        - 'low-level-design/design-patterns/creational/prototype.md'  
+        - 'low-level-design/design-patterns/creational/abstract-factory.md'  
         - 'low-level-design/design-patterns/creational/singleton.md'  
+        - 'low-level-design/design-patterns/creational/builder.md'  
+        - 'low-level-design/design-patterns/creational/prototype.md'  
       - Behavioral Patterns:
         - 'low-level-design/design-patterns/behavioral/chain-of-responsibility.md'  
         - 'low-level-design/design-patterns/behavioral/command.md'  
