@@ -1,288 +1,289 @@
 # Abstract Factory
 
-The **Abstract Factory** design pattern allows for the production of *families* of related objects without specifying their concrete classes.
+The **Abstract Factory** design pattern allows for the production of *families* of related objects without specifying their concrete classes. 
 
-## Problem
-
-Lets say there's a webapp representing a furniture store. The furniture has three types of furniture that they sell:
-
-- Sofa
-- Chairs
-- Tables
-
-For each furniture type they sell, they also have the following styles:
-
-- Modern
-- Victorian
-
-A webapp therefore would need an object for each of the furniture type. Within each of these furniture objects there would be a method that would have logic for creating the different furniture styles. 
-
-What happens when a new furniture type needs to be added? Same as **factory methods** if a large portion of the code only handles for specifically Sofa, Chairs, and Tables object, those would need to be refactored to handle any new objects that needs to be added. Not only that, if a new style is implemented, it needs to handle those changes as well. 
-
-## Solution
-
-Utilizing an **abstract factory** an interface can be created. Subclasses which represents the different furniture types can be made from the abstract factory. The **abstract factory** interface describes the functionalities shared between furniture types, and the styles that it expects to have. 
-
-This way, all future code can reference the **abstract factory** interface, but new implementations can be created just be adding new subclasses. 
-
-# Structure
+## Structure
 
 Below is an example of the abstract factory structure
 
 !!! tip "Abstract Factory Structure UML"
     <figure markdown>
-      <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method.svg#only-dark) -->
-      <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method-light.svg#only-light) -->
+        <!--
+        ![Factory Method Diagram](../../assets/images/design-patterns/factory-method.svg#only-dark)
+        ![Factory Method Diagram](../../assets/images/design-patterns/factory-method-light.svg#only-light)
+        -->
     </figure>
 
-- **Abstract Products:** interface which represents the distinct types of a product 
-- **Concrete Products:** various implementations of the abstract products. (Concrete products = furniture types, abstract products = furniture style). 
-- **Abstract Factory:** interface that declares methods for each abstract product.
-- **Concrete Factory:** implementation of creation methods declared in abstract factory. Each of these concrete factory corresponds to a specific concrete product.
+- **Abstract Products:** abstract class which represents the distinct types of a product.
+- **Concrete Products:** various implementations of the abstract products.
+- **Abstract Factory:** interface which declares the method used to create the various abstract products.
+- **Concrete Factory:** implementation of the creation method. Each of these concrete factory corresponds to a **set** of concrete products.
 
-# Abstract Factory Example
+## Abstract Factory Example
 
-Imagine a computer component manufacturer simulator. The code will represent the following:
+Imagine a program that simulates two computer component manufacturers that produce monitors and GPUs only. 
 
-- Two companies, ASUS and MSI
-- Components (or products) they produce, which will be GPUs and monitors.
+- Two companies: ASUS and MSI
+- Components (or products) they produce: Monitors and GPUs
 
-Below are two implementation of this computer component manufacturer simulator. 
+This is a good example of when to use the abstract factory design patterns since there are two different sets (or family) of products. 
 
-1. Non Abstract Factory Solution
-2. Abstract Factory Solution
+- Set 1 = ASUS, Set 2 = MSI
+- Products = monitors & GPUs
 
 ### Non Abstract Factory Example
 
 ???+ Example "Non Abstract Factory Example"
-    ```c# linenums="1" title="Example Code"
-    public class AsusManufacturer
-    {
-        public Component createComponent(string type)
+
+    === "C#"
+
+        ```c# linenums="1" title="Example Code" hl_lines="50-61 63-74"
+        // Product (Abstract Class)
+        public abstract class Gpu
         {
-            if (type == "GPU")
+            public abstract void Assemble();
+        }
+
+        // Product (Abstract Class)
+        public abstract class Monitor
+        {
+            public abstract void Assemble();
+        }
+
+
+        // Product (Concrete Class)
+        public class AsusGpu : Gpu
+        {
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling ASUS GPU");
+            }
+        }
+
+        // Product (Concrete Class)
+        public class AsusMonitor : Monitor
+        {
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling ASUS Monitor");
+            }
+        }
+
+        // Product (Concrete Class)
+        public class MsiGpu : Gpu
+        {
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling MSI GPU");
+            }
+        }
+
+        // Product (Concrete Class)
+        public class MsiMonitor : Monitor
+        {
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling MSI Monitor");
+            }
+        }
+
+        public class AsusManufacturer 
+        {
+            public Gpu CreateGpu()
             {
                 return new AsusGpu();
             }
-            else if (type == "Monitor")
+
+            public Monitor CreateMonitor()
             {
-                return new AsusMonitor();
+                return new AsusMonitor();        
             }
-
-            return null;
         }
-    }
 
-    public class MsiManufacturer
-    {
-        public Component createComponent(string type)
+        public class MsiManufacturer
         {
-            if (type == "GPU")
+            public Gpu CreateGpu()
             {
                 return new MsiGpu();
             }
-            else if (type == "Monitor")
+
+            public Monitor CreateMonitor()
             {
                 return new MsiMonitor();
             }
-
-            return null;
         }
-    }
+        ```
 
-    public class AsusMonitor : Component
-    {
-        public override void assemble()
+        ```c# linenums="1" title="Driver Code"
+        static void Main(string[] args)
         {
-            Console.WriteLine("Assembling ASUS Monitor");
+            var desiredCompany = "MSI";
+
+            if (desiredCompany == "ASUS")
+            {
+                AsusManufacturer asus = new AsusManufacturer();
+                asus.CreateGpu();
+                asus.CreateMonitor();
+            }
+            else if (desiredCompany == "MSI")
+            {
+                MsiManufacturer msi = new MsiManufacturer();
+                msi.CreateGpu();
+                msi.CreateMonitor();
+            }
+            else
+            {
+                throw new Exception("Invalid Company");
+            }
         }
-    }
+        ```
 
-    public class MsiMonitor : Component
-    {
-        public override void assemble()
-        {
-            Console.WriteLine("Assembling Msi Monitor");
-        }
-    }
+        ```title="Output"
+        Assembling MSI GPU
+        Assembling MSI Monitor 
+        ```
 
-    public class AsusGpu : Component
-    {
-        public override void assemble()
-        {
-            Console.WriteLine("Assembling ASUS GPU");
-        }
-    }
-
-    public class MsiGpu : Component
-    {
-        public override void assemble()
-        {
-            Console.WriteLine("Assembling MSI GPU");
-        }
-    }
-
-    public abstract class Component
-    {
-        public abstract void assemble();
-    }
-    ```
-
-    ```c# linenums="1" title="Driver Code"
-    public void Main()
-    {
-        Company asus = new AsusManufacturer();
-        Component asusGpu = asus.createComponent("GPU");
-        asusGpu.assemble();
-
-        Company msi = new MsiManufacturer();
-        Component msiGpu = msi.createComponent("GPU");
-        msiGpu.assemble();
-    } 
-    ```
-
-    ```title="Output"
-    Assembling ASUS GPU
-    Assembling MSI GPU
-    ```
-
-    In this example there are the following classes: 
-
-    - ``AsusManufacturer`` a Concrete Factory class
-    - ``MsiManufacturer`` a Concrete Factory class
-    - ``Component`` an Abstract Product class
-    - ``AsusGpu`` a Concrete Product class
-    - ``MsiGpu`` a Concrete Product class
-    - ``AsusMonitor`` a Concrete Product class
-    - ``MsiMonitor`` a Concrete Product class
-
-    This design pattern fits the [**factory method**](factory-method.md) pattern. 
+    This implementation uses a design pattern similar to the factory pattern (not to be confused with the [**factory method**](factory-method.md) pattern). 
     
-    - Asus createComponent handles both monitors and GPU (factory method design)
-    - MSI createComponent handles both monitors and GPU (factory method design)
+    - ``AsusManufacturer`` is a factory that contains methods to create ASUS products (GPU and Monitor)
+    - ``MsiManufacturer`` is a factory that contains methods to create MSI products (GPU and Monitor)
 
-    The issue with this implementation is that if a developer only assumed the ``MsiManufacturer`` class existed and built their webapp around this assumption, it would create a tight coupling. 
+    The issue with this implementation can be seen in the driver code. The code expects either a ``AsusManufacturer`` or ``MsiManufacturer`` object. Lets say the client code gets expanded with more behaviors, it would need to continue to handle both object types. 
 
-    When a new manufacturer needs to be added like ``AsusManufacturer`` all code that assumed ``MsiManufacturer`` would need to be updated to handle both. 
+    This issue becomes bigger when a new manufacturer type gets introduce. All the extended behavior would need to be updated again to handle a third manufacturer.
 
-    This violates the open/closed principle.
+    This implementation breaks the following SOLID principles: 
+
+    - Single responsibility principle: New reason to change = client code would now need to be updated if adding new family of product
+    - Open-Closed principle: Adding a new family of products will break all client code
 
 ### Abstract Factory Example
 
 ???+ Example "Abstract Factory Example"
-    ```c# linenums="1" title="Example Code" 
-    public abstract class Company
-    {
-        public abstract Gpu createGpu();
-        public abstract Monitor createMonitor();
-    }
 
-    public class AsusManufacturer : Company
-    {
-        public override Gpu createGpu()
+    === "C#"
+
+        ```c# linenums="1" title="Example Code" 
+        // Abstract Factory (Abstract Class)
+        public abstract class Company
         {
-            return new AsusGpu();
+            public abstract Gpu CreateGpu();
+            public abstract Monitor CreateMonitor();
         }
 
-        public override Monitor createMonitor()
+        // Product (Abstract Class)
+        public abstract class Gpu
         {
-            return new AsusMonitor();
-        }
-    }
-
-    public class MsiManufacturer : Company
-    {
-        public override Gpu createGpu()
-        {
-            return new MsiGpu();
+            public abstract void Assemble();
         }
 
-        public override Monitor createMonitor()
+        // Product (Abstract Class)
+        public abstract class Monitor 
         {
-            return new MsiMonitor();
+            public abstract void Assemble();
         }
-    }
 
-    public class AsusMonitor : Monitor
-    {
-        public override void assemble()
+        // Factory (Concrete Class) 
+        public class AsusManufacturer : Company
         {
-            Console.WriteLine("Assembling ASUS Monitor");
-        }
-    }
+            public override Gpu CreateGpu()
+            {
+                return new AsusGpu();
+            }
 
-    public class MsiMonitor : Monitor
-    {
-        public override void assemble()
+            public override Monitor CreateMonitor()
+            {
+                return new AsusMonitor();        
+            }
+        }
+
+        // Factory (Concrete Class)
+        public class MsiManufacturer : Company
         {
-            Console.WriteLine("Assembling Msi Monitor");
-        }
-    }
+            public override Gpu CreateGpu()
+            {
+                return new MsiGpu();
+            }
 
-    public class AsusGpu : Gpu
-    {
-        public override void assemble()
+            public override Monitor CreateMonitor()
+            {
+                return new MsiMonitor();
+            }
+        }
+
+        // Product (Concrete Class)
+        public class AsusGpu : Gpu
         {
-            Console.WriteLine("Assembling ASUS GPU");
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling ASUS GPU");
+            }
         }
-    }
 
-    public class MsiGpu : Gpu
-    {
-        public override void assemble()
+        // Product (Concrete Class)
+        public class AsusMonitor : Monitor 
         {
-            Console.WriteLine("Assembling MSI GPU");
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling ASUS Monitor");
+            }
         }
-    }
-
-    public abstract class Gpu
-    {
-        public abstract void assemble();
-    }
-
-    public abstract class Monitor
-    {
-        public abstract void assemble();
-    }
-    ```
-
-    ```c# linenums="1" title="Driver Code"
-    public void Main()
-    {
-        Company asus = new AsusManufacturer();
-        Gpu asusGpu = asus.createGpu();
-        asusGpu.assemble();
         
-        Company msi = new MsiManufacturer();
-        Gpu msiGpu = msi.createGpu();
-        msiGpu.assemble(); 
-    } 
-    ``` 
+        // Product (Concrete Class)
+        public class MsiGpu : Gpu
+        {
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling MSI GPU");
+            }
+        }
 
-    ```title="Output"
-    Assembling ASUS GPU
-    Assembling MSI GPU
-    ```
+        // Product (Concrete Class)
+        public class MsiMonitor : Monitor 
+        {
+            public override void Assemble()
+            {
+                Console.WriteLine("Assembling MSI Monitor");
+            }
+        }
+        ```
 
-    Using the abstract factory design there are the following classes: 
+        ```c# linenums="1" title="Driver Code" hl_lines="20-21"
+        static void Main(string[] args)
+        {
+            var desiredCompany = "MSI";
+            Company company;
 
-    - ``Company`` the Abstract Factory
-    - ``AsusManufacturer`` a Concrete Factory class
-    - ``MsiManufacturer`` a Concrete Factory class
-    - ``Gpu`` an Abstract Product class
-    - ``AsusGpu`` a Concrete Product class
-    - ``MsiGpu`` a Concrete Product class
-    - ``Monitor`` an Abstract Product class
-    - ``AsusMonitor`` a Concrete Product class
-    - ``MsiMonitor`` a Concrete Product class 
+            if (desiredCompany == "ASUS")
+            {
+                company = new AsusManufacturer();
 
-    Now there is an **abstract factory** ``Company`` which can be used instead of specifying the manufacturer.
+            }
+            else if (desiredCompany == "MSI")
+            {
+                company = new MsiManufacturer();
+            }
+            else
+            {
+                throw new Exception("Invalid Company");
+            }
 
-    Within the **abstract factory** the different types of components are declared. This ensures that any subclass of the ``Company`` class creates the right components.
+            company.CreateGpu();
+            company.CreateMonitor();
+        }
+        ``` 
 
-    Now the entire code can be created off of the ``Company`` class and new subclasses can be created without breaking everything.
+        ```title="Output"
+        Assembling MSI GPU
+        Assembling MSI Monitor
+        ```
 
-    
+    This example introduces the **abstract factory** ``Company`` which acts as the interface to build a family of products. 
+
+    The ``AsusManufacturer`` and ``MsiManufacturer`` classes are subclasses of the **abstract factory** and handles creating the respective set of products. 
+
+    In the driver code either manufacturer subclass can be assigned to the ``company`` variable. Either way, it does not break the rest of the code due to the abstract factory. The abstract factory ensures that each implementation has all the methods the rest of the code expects to see. This can be seen on line 20-21 in the driver code.
+
 ## When To Use 
 
 - Usually, most people will start with a [**factory method**](factory-method.md)
