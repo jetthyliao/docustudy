@@ -41,7 +41,7 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
 
     === "C#"
 
-        ```c# linenums="1" title="Non Factory Method Example" hl_lines="19-35" 
+        ```c# linenums="1" title="Example Code" hl_lines="19-35" 
         public class ItalianMeal 
         {
             public void Cook()
@@ -170,7 +170,7 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
         }
         ```
 
-        ```c# linenums="1" title="Driver Code"
+        ```c# linenums="1" title="Driver Code" hl_lines="21"
         static void Main(string[] args)
         {
             // var mealPreference = "Italian";
@@ -191,7 +191,7 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
                 throw new Exception("Invalid meal preference");
             }
 
-            restaurant.CreateMeal();
+            restaurant.OrderMeal();
         }
         ```
 
@@ -203,6 +203,8 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
     This example introduces slightly more complexity, but there are now interfaces to abstract the ``Restaurant`` class and the various ``Meal`` classes. 
 
     There is also a **factory method** to handle creating the concrete ``Products``. 
+
+    As seen on line 21, it does not matter whether the ``ChineseRestaurant`` or the ``ItalianRestaurant`` is implemented, both will not break the rest of the code. This is because both subclasses inherit from the ``Restaurant`` class.
 
     With this implementation we've fixed the following issues that broke the SOLID principles: 
 
