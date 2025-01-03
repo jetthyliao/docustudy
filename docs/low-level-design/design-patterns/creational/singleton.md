@@ -5,122 +5,132 @@ The **singleton** design pattern ensures a class has only one instance, while pr
 1. Ensure a class has just a single instance
 2. Provide global access point to that instance
 
-## Problem
+## Structure
 
-The problem of not using singletons in a program is as followed: 
+Below is an example of the singleton structure
 
-- If multiple instances are created to represent a file or database, there can be conflict on what reads/writes or the most current.
-- If there is not a single global access point, it is most likely that code to check for the single instance is copied in multiple places in the program.
+!!! tip "Singleton Structure UML"
+    <figure markdown>
+        <!--
+        -->
+    </figure>
 
-## Solution
+- **Singleton Class**: the singleton class (which will fulfill the two functionalities)
+    - **Access Point Method**: access point to the single instance
 
-Singletons address both of the issues as stated above, it does so by: 
+## Singleton Example
 
-- Ensure single instance: the default constructor is set to **private** preventing other objects from using the ``new`` operator in the singleton class.
-- Creates a static creation method that acts as a constructor. Either the default constructor will be called to create the first instance, or it will return a static cached version of the instance.
-
-# Singleton Example
-
-Lets say there is a program that needs to connect to a database. A single instance of the database should be created as a single connection is desired.
-
-The singleton design pattern will ensure that there is a single connection, and it will give a single entry point to access this instance. 
+This example is implementing a database connection pool. To control access to the database, there should only be one connection pool that is being used. This is a perfect example of when to use the singleton design pattern as it will guarantee one connection pool is established, and a way to access this pool.
 
 ### Non Singleton Example
 
 ???+ Example "Non Singleton example"
-    ```c# linenums="1" title="Example Code"
-    public class Database
-    {
-        private PostgresExample db;
-        public Database()
+
+    === "C#"
+
+        ```c# linenums="1" title="Example Code"
+        public class DatabaseConnectorPool
         {
-            this.db = new PostgresExample{
-                ServerName = "Example1",
-                ConnectionURL = "postgresql://example"
-            };
-        }
+            public DatabaseConnectorPool()
+            {
+                ConnectToDatabases();
+            }
 
-        public string getServerName()
+            public void ConnectToDatabases() // Example business logic
+            { 
+                // ... Code to setup multiple connections to database
+            }
+
+            public void Query() // Example business logic 
+            { 
+                // ... Code to pick a database connection and perform query
+            }
+        }
+        ```
+
+        ```c# linenums="1" title="Driver Code" hl_lines="3-4 6-7"
+        static void Main(string[] args)
         {
-            return db.ServerName;
+            DatabaseConnectorPool pool1 = new DatabaseConnectorPool();
+            pool1.Query();
+
+            DatabaseConnectorPool pool2 = new DatabaseConnectorPool();
+            pool2.Query();
         }
-    }
+        ```
 
-    public class PostgresExample
-    {
-        public string ServerName { get; set; }
-        public string ConnectionURL { get; set; }
-    }
-    ```
+        ```title="Output"
+        Setting up connection pool
+        Using connection pool to query
+        Setting up connection pool
+        Using connection pool to query
+        ```
 
-    ```c# linenums="1" title="Driver Code"
-    public void Main() 
-    {
-        Database test1 = new Database();
-        Console.WriteLine(test1.getServerName());
+    In this example, the ``DatabaseConnectorPool`` class is created twice making two instances of the class, as seen in the driver code. 
 
-        Database test2 = new Database();
-        Console.WriteLine(test2.getServerName());
-    }
-    ```
-
-    ```title="Output"
-    Example1
-    Example1
-    ```
-
-    In this example, the ``Database`` class is created twice making two unique instances of the database object. 
-
-    In a real world scenario this would mean two connections have been created to the database which is a waste of resources.
+    In a real world scenario this would mean two connection pools have been created to the database which is a waste of resources, or if the database doesn't handle concurrent reads/writes well, it could cause errors down the line.
 
 ### Singleton Example 
 
 ???+ Example "Singleton example"
-    ```c# linenums="1" title="Example Code"
-    public sealed class Database // sealed so no subclasses can be made
+
+    ```c# linenums="1" title="Example Code" hl_lines="6 12-19"
+    public sealed class DatabaseConnectorPool // Sealed so no subclasses can be made
     {
-        private static readonly Database Instance = new Database();
+        private static DatabaseConnectorPool _instance;
 
-        private PostgresExample db;
-
-        private Database() 
-        {
-            this.db = new PostgresExample{ 
-                ServerName = "Example1", 
-                ConnectionURL = "postgressql://example"
-            };
+        // Hidden Constructor
+        private DatabaseConnectorPool()
+        { 
+            ConnectToDatabases();
         }
 
-        public static Database GetDatabase()
+        // Access Point Method
+        public static DatabaseConnectorPool GetInstance()
         {
-            return instance;
+            if (_instance == null)
+            { 
+                _instance = new DatabaseConnectorPool();
+            }
+            return _instance;
         }
-    }    
 
-    public class PostgresExample
-    {
-        public string ServerName { get; set; }
-        public string ConnectionURL { get; set; }
-    } 
+        public void ConnectToDatabases() // Example business logic
+        { 
+            Console.WriteLine("Setting up connection pool");
+            // ... Code to setup multiple connections to database
+        }
+
+        public void Query() // Example business logic 
+        { 
+            Console.WriteLine("Using connection pool to query");
+            // ... Code to pick a database connection and perform query
+        }
+    }
     ```
 
     ```c# linenums="1" title="Driver Code"
-    public void Main() 
+    static void Main(string[] args)
     {
-        Database test1 = Database.GetDatabase();
-        Database test2 = Database.GetDatabase();
+        DatabaseConnectorPool pool1 = DatabaseConnectorPool.GetInstance();
+        pool1.Query();
 
-        Console.WriteLine((test1 == test2));
+        DatabaseConnectorPool pool2 = DatabaseConnectorPool.GetInstance();
+        pool2.Query();
     }
     ```
 
     ```title="Output"
-    true
+    Setting up connection pool
+    Using connection pool to query
+    Using connection pool to query
     ```
 
-    In this example, using the the singleton pattern, the first call of ``GetDatabase`` will create a new database instance and assign it to the instance variable. Every other call will return the cached instance property. 
+    In this example, using the the singleton pattern, the first call of ``GetInstance`` created a new ``DatabaseConnectorPool`` instance and assigned it to the ``_instance`` variable. All subsequent calls to the ``GetInstance`` method will now reference this same instance.
 
-    The ``Database`` class is also set with the ``sealed`` keyword to ensure it cannot be inherited.
+    The ``DatabaseConnectorPool`` class is also set with the ``sealed`` keyword to ensure it cannot be inherited.
+
+    In the output, "Setting up connection pool" only printed once which indicates the pool was setup only once and there is in fact only one instance.
 
 ## When To Use 
 
