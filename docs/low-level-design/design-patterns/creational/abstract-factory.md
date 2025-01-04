@@ -284,6 +284,12 @@ This is a good example of when to use the abstract factory design patterns since
 
     In the driver code either manufacturer subclass can be assigned to the ``company`` variable. Either way, it does not break the rest of the code due to the abstract factory. The abstract factory ensures that each implementation has all the methods the rest of the code expects to see. This can be seen on line 20-21 in the driver code.
 
+    This implementation fixes the following SOLID principles: 
+
+    - Single responsibility principle: new family of products can be added but it won't break the driver code
+    - Open-Closed principle: family of products can be swapped without breaking (line 20-21 in driver code)
+     
+
 ## When To Use 
 
 - Usually, most people will start with a [**factory method**](factory-method.md)

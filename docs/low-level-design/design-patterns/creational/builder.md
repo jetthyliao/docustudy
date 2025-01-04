@@ -2,33 +2,22 @@
 
 The **Builder** design patterns allow for the construction of complex objects step by step. It allows for producing different types and representation of an object using the same construction code.
 
-## Problem
+The separation between the construction of a complex object and its representation allows for the construction process to be reused for different representations. 
 
-If an object has multiple properties, sometimes all the properties need not be defined or used. When this occurs, if an object is designed poorly, the constructor will ask the user to define all the fields anyways meaning they have to fill in properties with nulls creating messier code. 
-
-For example, lets say there is a ``house`` class to represent building a house. If different auxillary features of a house exist (pool, gnomes, central A/C, etc...) these would need to be properties in a ``house`` class. Also a constructor would need to be setup to take in these different properties. 
-
-There are a few potential options... 
-
-1. Create multiple constructors (for different permutations of a house + features): this can cause a huge hierarchy of multiple constructors (with no explanation unless commented about what constructor designs what kind of house)
-2. Subclasses: a new ``HouseGarden`` class can be made to define a house with a garden, same as above, this causes a messy hierarchy of subclasses.
-3. Builder design pattern
-
-
-## Solution
+## Structure
 
 Below is an example of a simple builder structure
 
-!!! tip "Builder Structure UML"
+!!! tip "Simple Builder Structure UML"
     <figure markdown>
           <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method.svg#only-dark) -->
           <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method-light.svg#only-light) -->
     </figure>
 
-- **Product:** object which represents some sort of product (the properties are all defined as setter/getter methods).
-- **Builder:** object that constructs the instance of a product and contains method to set all the fields.
+- **Products:** object which represents some sort of product.
+- **Builders:** object that constructs the instance of a product and contains method to set all the fields.
 
-Below is an example of a simple builder structure
+Below is an example of a builder structure
 
 !!! tip "Builder Structure UML"
     <figure markdown>
@@ -37,21 +26,26 @@ Below is an example of a simple builder structure
     </figure>
 
 - **Products:** (see simple builder above)
-- **Builder:** (see simple builder above)
+- **Builders:** (see simple builder above)
 - **Builder Interface:** defines common product construction that is shared between all types of builder (default settings) 
 - **Director:** defines the order in which to call construction steps. Basically contains presets of certain products to create.
 
-# Builder Example
+## Builder Example
 
-Imagine a complex object like a car. Lets say the car object has the following fields: 
+Imagine a program that constructs two different products: 
 
-- Brand (string)
-- Color (string)
+1. Car: object that represents a physical car
+2. Car Schema: object that represents a schema linked to a car
+
+Both of these products have the follow fields: 
+
+- Model (string)
 - Engine (string)
 - Seats (int)
-- Wheels (int) 
+- Color (string)
+- Spoiler (string) 
 
-Below are three implementation for this car example.
+Below are three implementations for this car example.
 
 1. Non Builder Example
 2. Simple Builder Example
@@ -60,396 +54,481 @@ Below are three implementation for this car example.
 ### Non Builder Example
 
 ???+ Example "Non Builder Example"
-    ```c# linenums="1" title="Example Code" hl_lines="29-36"  
-    public class AutomaticCar
-    {
-        private string Brand;
-        private string Color;
-        private string Engine;
-        private int Seats;
-        private int Doors;
 
-        AutomaticCar(string brand, string color, string engine, int seats, int wheels) 
+    === "C#"
+
+        ```c# linenums="1" title="Example Code" 
+        public class Car
         {
-            this.Brand = brand;
-            this.Color = color;
-            this.Engine = engine;
-            this.Seats = seats;
-            this.Doors = doors;
+            public string model;
+            public string engine;
+            public int seats;
+            public string color;
+            public string spoiler;
+
+            public Car(string model, string engine, int seats, string color, string spoiler)
+            {
+                this.model = model;
+                this.engine = engine;
+                this.seats = seats;
+                this.color = color;
+                this.spoiler = spoiler;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("Model: {0}, Engine: {1}, Seats: {2}, Color: {3}, Spoiler: {4}", 
+                    model, engine, seats, color, spoiler);
+            }
+
+
+            // ... Additional car related behavior ...
         }
 
-        public void GetSpecs()
+        public class CarSchema
         {
-            Console.WriteLine("Listing Specs...");
-            Console.WriteLine("Brand: {0}", this.brand);
-            Console.WriteLine("Color: {0}", this.color);
-            Console.WriteLine("Engine: {0}", this.engine);
-            Console.WriteLine("Seats: {0}", this.seats);
-            Console.WriteLine("Doors: {0}", this.doors);
-        }
-    }
+            public string model;
+            public string engine;
+            public int seats;
+            public string color;
+            public string spoiler;
 
-    public class MatchBox : AutomaticCar
-    {
-        MatchBox(string color, int doors) 
+            public CarSchema(string model, string engine, int seats, string color, string spoiler)
+            {
+                this.model = model;
+                this.engine = engine;
+                this.seats = seats;
+                this.color = color;
+                this.spoiler = spoiler;
+            }
+            
+            public override string ToString()
+            {
+                return string.Format("Model: {0}, Engine: {1}, Seats: {2}, Color: {3}, Spoiler: {4}", 
+                    model, engine, seats, color, spoiler);
+            }
+
+            // ... Additional car schema related behavior ...
+        }
+        ```
+
+        ```c# linenums="1" title="Driver Code" hl_lines="3 6"
+        static void Main(string[] args)
         {
-            this.Color = color;
-            this.Doors = doors;
+            Car toyotaTacoma1 = new Car("Tacoma", "4 Cylinder", 4, "Tan", "");
+            Console.WriteLine(toyotaTacoma1);
+
+            CarSchema toyotaTacoma2 = new CarSchema("Tacoma", "4 Cylinder", 4, "Green", "");
+            Console.WriteLine(toyotaTacoma2);
+            
+            CarSchema hondaS2000 = new CarSchema("S2000", "Inline 4 Cylinder Turbo-charged", 2, "Yellow", "Carbon Fiber");
+            Console.WriteLine(hondaS2000);
         }
-    }
-    ```
+        ```
 
-    ```c# linenums="1" title="Driver Code" hl_lines="4"
-    public void Main()
-    {
-        Car foopy = new Car("Subaru", "Blue", "4cyl",  5, 4);
-        Car basic = new Car("", "Blue", "",  1);
-         
-        foopy.GetSpecs();
-        basic.GetSpecs();
-    }
-    ```
+        ```title="Output"
+        Model: Tacoma, Engine: 4 Cylinder, Seats: 4, Color: Tan, Spoiler:
+        Model: Tacoma, Engine: 4 Cylinder, Seats: 4, Color: Green, Spoiler:
+        Model: S2000, Engine: Inline 4 Cylinder Turbo-charged, Seats: 2, Color: Yellow, Spoiler: Carbon Fiber
+        ```
 
-    ```title="Output"
-    Listing Specs...
-    Brand: Subaru
-    Color: Blue
-    Engine: 4cyl
-    Seats: 5
-    Doors: 4
+    In this implementation there are two types of objects that is created ``Car`` and ``CarSchema``. 
 
-    Listing Specs...
-    Brand: 
-    Color: Blue
-    Engine: 
-    Seats: 
-    Doors: 1
- 
-    ```
+    In the driver code, three instances were made out of these two classes. They are the following: 
 
-    In this implementation there is a ``AutomaticCar`` class to represent creating automatic cars. Every time a new automatic car object is created, multiple fields must be instantiated first.
+    - Tan Toyota Tacoma
+    - Green Toyota Tacoma
+    - Yellow Honda S2000
 
-    This is not a good solution because sometimes not all fields need to be instantiated. For example some cars may have no doors (Jeeps) or some cars might be custom built (no brand). This is shown in the highlighted line in the driver code. The ``basic`` car represents a match box car that has no brand, no engine, and no doors, however all the fields still need to be instantiated.
+    On lines 3 and 6 of the driver code, both these lines are initializing Toyota Tacoma's. They both require an empty value for ``Spoiler`` since the ``Car`` and ``CarSchema`` class expects one. This is the main issue that the builder design pattern addresses. 
 
-    A potential solution is creating a subclass for the matchbox car, but as a program grows it could contain many subclasses (all permutations of potential properties) and this hierarchy is messy. 
+    Assume the rest of the program builds on top of the Toyota Tacoma objects. If a new car such as **Semi-Truck** were added and it required a new field called ``CargoBox`` this would require refactoring any code that uses the ``Car``class. 
 
-    A simple builder design alleviates this issue.
+    This breaks the following SOLID principles: 
 
+    - Single responsibility principle: new reason to refactor = updates to construction of an object (ex. adding a new field)
+    
 ### Simple Builder Example
 
 ???+ Example "Simple Builder Example"
-    ```c# linenums="1" title="Example Code"
-    public class AutomaticCar
-    { 
-        public string Brand { get; set; }
-        public string Color { get; set; }
-        public string Engine { get; set; }
-        public int Seats { get; set; }
-        public int Wheels { get; set; }
 
-        public void GetSpecs()
+    === "C#" 
+
+        ```c# linenums="1" title="Example Code" hl_lines="1-9"
+        // Builder (Interface)
+        public interface Builder
         {
-            Console.WriteLine("Listing Specs...");
-            Console.WriteLine("Brand: {0}", this.Brand);
-            Console.WriteLine("Color: {0}", this.Color);
-            Console.WriteLine("Engine: {0}", this.Engine);
-            Console.WriteLine("Seats: {0}", this.Seats);
-            Console.WriteLine("Wheels: {0}", this.Wheels);
-        }         
-    }
-
-    public class AutomaticCarBuilder
-    {
-        private AutomaticCar _automaticCar;
-
-        public AutomaticCarBuilder()
-        {
-            this._automaticCar = new AutomaticCar();
+            public Builder AddModel(string model);
+            public Builder AddEngine(string engine);
+            public Builder AddSeats(int seats);
+            public Builder AddColor(string color);
+            public Builder AddSpoiler(string material);
         }
 
-        public AutomaticCarBuilder SetBrand(string brand) 
+
+        // Product (Concrete Class)
+        public class Car
         {
-            this._automaticCar.Brand = brand;
-            return this;
+            public string Model { get; set; }
+            public string Engine { get; set; }
+            public int Seats { get; set; }
+            public string Color { get; set; }
+            public string Spoiler { get; set; }
+            public override string ToString()
+            {
+                return string.Format("Model: {0}, Engine: {1}, Seats: {2}, Color: {3}, Spoiler: {4}", 
+                    Model, Engine, Seats, Color, Spoiler);
+            }
+
+
+            // ... Additional car related behavior ...
         }
-        
-        public AutomaticCarBuilder SetColor(string color) 
-        {
-            this._automaticCar.Color = color;
-            return this;
-        } 
-         
-        public AutomaticCarBuilder SetEngine(string engine) 
-        {
-            this._automaticCar.Engine = engine;
-            return this;
-        } 
-        
-        public AutomaticCarBuilder SetSeats(int seats) 
-        {
-            this._automaticCar.Seats = seats;
-            return this;
-        } 
-        
-        public AutomaticCarBuilder SetWheels(int wheels) 
-        {
-            this._automaticCar.Wheels = wheels;
-            return this;
-        } 
 
-        public AutomaticCar BuildAutomaticCar()
+        // Product (Concrete Class)
+        public class CarSchema
         {
-            return _automaticCar;
+            public string Model { get; set; }
+            public string Engine { get; set; }
+            public int Seats { get; set; }
+            public string Color { get; set; }
+            public string Spoiler { get; set; }
+            
+            public override string ToString()
+            {
+                return string.Format("Model: {0}, Engine: {1}, Seats: {2}, Color: {3}, Spoiler: {4}", 
+                    Model, Engine, Seats, Color, Spoiler);
+            }
+
+            // ... Additional car schema related behavior ...
         }
-    } 
-    ```
 
-    ```c# linenums="1" title="Driver Code"
-    public void Main()
-    {
-        AutomaticCarBuilder ac = new AutomaticCarBuilder();
-        ac.SetBrand("Subaru")
-          .SetColor("Blue")
-          .SetEngine("4cyl")
-          .SetSeats(5)
-          .SetWheels(4);
-        AutomaticCar car = ac.BuildAutomaticCar();
-        car.GetSpecs();
-    }
-    ```
+        // Builder (Concrete Class)
+        public class CarBuilder : Builder
+        {
+            private Car _car = new Car();
 
-    ```title="Output"
-    Listing Specs...
-    Brand: Subaru
-    Color: Blue
-    Engine: 4cyl
-    Seats: 5
-    Doors: 4 
-    ```
+            public Builder AddColor(string color)
+            {
+                _car.Color = color;
+                return this;
+            }
 
-    In this example, the ``AutomaticCar`` class now doesn't expect any initial properties, instead all the properties are defined after instantiation of the class. This is done using getter/setter methods in the ``AutomaticCarBuilder`` class. 
+            public Builder AddEngine(string engine)
+            {
+                _car.Engine = engine;
+                return this;
+            }
 
-    This solution allows a user to instantiate the properties they need leaving the rest to be null. 
+            public Builder AddModel(string model)
+            {
+                _car.Model = model;
+                return this;
+            }
+
+            public Builder AddSeats(int seats)
+            {
+                _car.Seats = seats;
+                return this;
+            }
+
+            public Builder AddSpoiler(string material)
+            {
+                _car.Spoiler = material;
+                return this;
+            }
+
+            public Car Build()
+            {
+                return _car;
+            }
+        }
+
+        // Builder (Concrete Class)
+        public class CarSchemaBuilder : Builder
+        {
+            private CarSchema _carSchema = new CarSchema();
+
+            public Builder AddColor(string color)
+            {
+                _carSchema.Color = color;
+                return this;
+            }
+
+            public Builder AddEngine(string engine)
+            {
+                _carSchema.Engine = engine;
+                return this;
+            }
+
+            public Builder AddModel(string model)
+            {
+                _carSchema.Model = model;
+                return this;
+            }
+
+            public Builder AddSeats(int seats)
+            {
+                _carSchema.Seats = seats;
+                return this;
+            }
+
+            public Builder AddSpoiler(string material)
+            {
+                _carSchema.Spoiler = material;
+                return this;
+            }
+
+            public CarSchema Build()
+            {
+                return _carSchema;
+            }
+        }
+        ```
+
+        ```c# linenums="1" title="Driver Code" hl_lines="6-11 13-18 20-26"
+        static void Main(string[] args)
+        {
+            CarBuilder carMaker = new CarBuilder();
+            CarSchemaBuilder carSchemaMaker = new CarSchemaBuilder();
+
+            // Building a Toyota Tacoma Car
+            carMaker.AddModel("Tacoma")
+                .AddEngine("4 Cylinder")
+                .AddColor("Tan")
+                .AddSeats(4);
+            Console.WriteLine(carMaker.Build());
+
+            // Building a Toyota Tacoma Car Schema
+            carSchemaMaker.AddModel("Tacoma")
+                .AddEngine("4 Cylinder")
+                .AddColor("Green")
+                .AddSeats(4);
+            Console.WriteLine(carSchemaMaker.Build());
+
+            // Building a S2000 Car Schema
+            carSchemaMaker.AddModel("S2000")
+                .AddEngine("Inline 4 Cylinder Turbo-charged")
+                .AddColor("Yellow")
+                .AddSeats(2)
+                .AddSpoiler("Carbon Fiber");
+            Console.WriteLine(carSchemaMaker.Build());
+
+        }
+        ```
+
+        ```title="Output"
+        Model: Tacoma, Engine: 4 Cylinder, Seats: 4, Color: Tan, Spoiler:
+        Model: Tacoma, Engine: 4 Cylinder, Seats: 4, Color: Green, Spoiler:
+        Model: S2000, Engine: Inline 4 Cylinder Turbo-charged, Seats: 2, Color: Yellow, Spoiler: Carbon Fiber
+        ```
+    
+    In this example the ``Car`` and ``CarSchema`` class now doesn't expect any initial properties/constructor, instead all properties are defined after the instantiation of the class. 
+
+    The ``Builder`` interface lets the program know what fields will be expected by the ``Car`` and ``CarSchema`` class. The actual builders ``CarBuilder`` and ``CarSchemaBuilder`` handles the construction of the ``Car`` and ``CarSchema`` classes. 
+
+    Using the same example in the bad example, what if a new car, **Semi-Truck**, was added with the new field ``CargoBox``? 
+
+    - All the classes in this example would have to be updated to handle the new field.  
+    - **The code in the driver code would remain the same without any issues**.
+
+    The addition of this simple builder design pattern allows for construction of the products to be separated. Meaning if construction changes (new fields are added), it doesn't effect products already created (the ``Car`` and ``CarSchema`` objects created in driver code).
+
+    This fixes the issue that broke the following SOLID principle: 
+
+    - Single responsibility principle: new fields won't break the code since construction logic is separated.
+
+    This pattern can be further optimized. The driver code has a lot of duplicated logic which can be cut down by creating a ``Director`` class.
+
 ### Builder Example
 
 ???+ Example "Builder Example"
-    ```c# linenums="1" title="Example Code"
-    public class AutomaticCar
-    {
-        public string Brand { get; set; }
-        public string Color { get; set; }
-        public string Engine { get; set; }
-        public int Seats { get; set; }
-        public int Wheels { get; set; }
 
-        public void GetSpecs()
+    === "C#" 
+
+        ```c# linenums="1" title="Example Code" hl_lines="130-149"
+        // Builder (Interface)
+        public interface Builder
         {
-            Console.WriteLine("Listing Specs...");
-            Console.WriteLine("Brand: {0}", Brand);
-            Console.WriteLine("Color: {0}", Color);
-            Console.WriteLine("Engine: {0}", Engine);
-            Console.WriteLine("Seats: {0}", Seats);
-            Console.WriteLine("Wheels: {0}", Wheels);
-        }
-    }
-
-    public class ManualCar
-    {
-        public string Brand { get; set; }
-        public string Color { get; set; }
-        public string Engine { get; set; }
-        public int Seats { get; set; }
-        public int Wheels { get; set; }
-        public string Clutch { get; set; }
-        public string Transmission { get; set; }
-
-        public void GetSpecs()
-        {
-            Console.WriteLine("Listing Specs...");
-            Console.WriteLine("Brand: {0}", Brand);
-            Console.WriteLine("Color: {0}", Color);
-            Console.WriteLine("Engine: {0}", Engine);
-            Console.WriteLine("Seats: {0}", Seats);
-            Console.WriteLine("Wheels: {0}", Wheels);
-            Console.WriteLine("Clutch: {0}", Clutch);
-            Console.WriteLine("Transmission: {0}", Transmission);
-        }
-    }
-
-    public class AutomaticCarBuilder : IBuilder
-    {
-        private AutomaticCar _automaticCar;
-
-        public AutomaticCarBuilder()
-        {
-            this._automaticCar = new AutomaticCar();
+            public Builder AddModel(string model);
+            public Builder AddEngine(string engine);
+            public Builder AddSeats(int seats);
+            public Builder AddColor(string color);
+            public Builder AddSpoiler(string material);
         }
 
-        public IBuilder SetBrand(string brand)
+
+        // Product (Concrete Class)
+        public class Car
         {
-            this._automaticCar.Brand = brand;
-            return this;
+            public string Model { get; set; }
+            public string Engine { get; set; }
+            public int Seats { get; set; }
+            public string Color { get; set; }
+            public string Spoiler { get; set; }
+            public override string ToString()
+            {
+                return string.Format("Model: {0}, Engine: {1}, Seats: {2}, Color: {3}, Spoiler: {4}", 
+                    Model, Engine, Seats, Color, Spoiler);
+            }
+
+
+            // ... Additional car related behavior ...
         }
 
-        public IBuilder SetColor(string color)
+        // Product (Concrete Class)
+        public class CarSchema
         {
-            this._automaticCar.Color = color;
-            return this;
+            public string Model { get; set; }
+            public string Engine { get; set; }
+            public int Seats { get; set; }
+            public string Color { get; set; }
+            public string Spoiler { get; set; }
+            
+            public override string ToString()
+            {
+                return string.Format("Model: {0}, Engine: {1}, Seats: {2}, Color: {3}, Spoiler: {4}", 
+                    Model, Engine, Seats, Color, Spoiler);
+            }
+
+            // ... Additional car schema related behavior ...
         }
 
-        public IBuilder SetEngine(string engine)
+        // Builder (Concrete Class)
+        public class CarBuilder : Builder
         {
-            this._automaticCar.Engine = engine;
-            return this;
+            private Car _car = new Car();
+
+            public Builder AddColor(string color)
+            {
+                _car.Color = color;
+                return this;
+            }
+
+            public Builder AddEngine(string engine)
+            {
+                _car.Engine = engine;
+                return this;
+            }
+
+            public Builder AddModel(string model)
+            {
+                _car.Model = model;
+                return this;
+            }
+
+            public Builder AddSeats(int seats)
+            {
+                _car.Seats = seats;
+                return this;
+            }
+
+            public Builder AddSpoiler(string material)
+            {
+                _car.Spoiler = material;
+                return this;
+            }
+
+            public Car Build()
+            {
+                return _car;
+            }
         }
 
-        public IBuilder SetSeats(int seats)
+        // Builder (Concrete Class)
+        public class CarSchemaBuilder : Builder
         {
-            this._automaticCar.Seats = seats;
-            return this;
+            private CarSchema _carSchema = new CarSchema();
+
+            public Builder AddColor(string color)
+            {
+                _carSchema.Color = color;
+                return this;
+            }
+
+            public Builder AddEngine(string engine)
+            {
+                _carSchema.Engine = engine;
+                return this;
+            }
+
+            public Builder AddModel(string model)
+            {
+                _carSchema.Model = model;
+                return this;
+            }
+
+            public Builder AddSeats(int seats)
+            {
+                _carSchema.Seats = seats;
+                return this;
+            }
+
+            public Builder AddSpoiler(string material)
+            {
+                _carSchema.Spoiler = material;
+                return this;
+            }
+
+            public CarSchema Build()
+            {
+                return _carSchema;
+            }
         }
 
-        public IBuilder SetWheels(int wheels)
+        // Director 
+        public class Director
         {
-            this._automaticCar.Wheels = wheels;
-            return this;
+            public void BuildToyotaTacoma(Builder builder)
+            {
+                builder.AddModel("Tacoma")
+                    .AddEngine("4 Cylinder")
+                    .AddColor("Tan")
+                    .AddSeats(4);
+            }
+
+            public void BuildHondaS2000(Builder builder)
+            {
+                builder.AddModel("S2000")
+                    .AddEngine("Inline 4 Cylinder")
+                    .AddColor("Yellow")
+                    .AddSeats(2)
+                    .AddSpoiler("Carbon Fiber");
+            }
         }
+        ```
 
-        public AutomaticCar BuildAutomaticCar()
+        ```c# linenums="1" title="Driver Code" hl_lines="7-9 11-14 16-19"
+        static void Main(string[] args)
         {
-            return _automaticCar;
+            Director director = new Director();
+            CarBuilder carMaker = new CarBuilder();
+            CarSchemaBuilder carSchemaMaker = new CarSchemaBuilder();
+
+            // Car builder example - Tacoma
+            director.BuildToyotaTacoma(carMaker);
+            Console.WriteLine(carMaker.Build());
+
+            // Car Schema builder example - Tacoma
+            director.BuildToyotaTacoma(carSchemaMaker);
+            carMaker.AddColor("Green");
+            Console.WriteLine(carSchemaMaker.Build());
+
+            // Car Schema builder example - S2000
+            director.BuildHondaS2000(carSchemaMaker);
+            carSchemaMaker.AddEngine("Inline 4 Cylinder Turbo-charged");
+            Console.WriteLine(carSchemaMaker.Build());
         }
-    }
+        ```
 
-    public class ManualCarBuilder : IBuilder
-    {
-        private ManualCar _manualCar;
+        ```title="Output"
+        Model: Tacoma, Engine: 4 Cylinder, Seats: 4, Color: Tan, Spoiler:
+        Model: Tacoma, Engine: 4 Cylinder, Seats: 4, Color: Green, Spoiler:
+        Model: S2000, Engine: Inline 4 Cylinder Turbo-charged, Seats: 2, Color: Yellow, Spoiler: Carbon Fiber
+        ```
+    
+    This implementation is identical to the simple builder example except for the ``Director`` class which simplifies the construction process even more. 
 
-        public ManualCarBuilder()
-        {
-            this._manualCar = new ManualCar();
-        }
-
-        public IBuilder SetBrand(string brand)
-        {
-            this._manualCar.Brand = brand;
-            return this;
-        }
-
-        public IBuilder SetColor(string color)
-        {
-            this._manualCar.Color = color;
-            return this;
-        }
-
-        public IBuilder SetEngine(string engine)
-        {
-            this._manualCar.Engine = engine;
-            return this;
-        }
-
-        public IBuilder SetSeats(int seats)
-        {
-            this._manualCar.Seats = seats;
-            return this;
-        }
-
-        public IBuilder SetWheels(int wheels)
-        {
-            this._manualCar.Wheels = wheels;
-            return this;
-        }
-
-        public IBuilder SetTransmission(string transmission)
-        {
-            this._manualCar.Transmission = transmission;
-            return this;
-        }
-
-        public IBuilder SetClutch(string clutch)
-        {
-            this._manualCar.Clutch = clutch;
-            return this;
-        }
-
-        public ManualCar BuildManualCar()
-        {
-            return _manualCar;
-        }
-    }
-
-    public interface IBuilder
-    {
-        public IBuilder SetEngine(string engine);
-        public IBuilder SetSeats(int seats);
-    }
-
-    public class Director
-    {
-        public void CreateSportsCar(IBuilder builder)
-        {
-            builder.SetEngine("8cyl")
-                   .SetSeats(2);
-        }
-
-        public void CreateHonda(IBuilder builder)
-        {
-            builder.SetBrand("Honda")
-                   .SetEngine("4cyl")
-                   .SetSeats(4);
-        } 
-    }
-    ```
-
-    ```c# linenums="1" title="Driver Code"
-    public void Main()
-    {
-        Director shop = new Director();
-        AutomaticCarBuilder ac = new AutomaticCarBuilder();
-        ManualCarBuilder mc = new ManualCarBuilder();
-
-        shop.CreateSportsCar(ac);
-        shop.CreateSportsCar(mc);
-        AutomaticCar car1 = ac.BuildAutomaticCar();
-        ManualCar car2 = mc.BuildManualCar();
-        
-        car2.Clutch = "XM-3492";
-         
-        car1.GetSpecs();
-        car2.GetSpecs(); 
-    }
-    ```
-
-    ```title="Output"
-    Listing Specs...
-    Brand: 
-    Color: 
-    Engine: 8cyl
-    Seats: 2
-    Doors:   
-
-    Listing Specs...
-    Brand: 
-    Color: 
-    Engine: 8cyl
-    Seats: 2
-    Doors:  
-    Clutch: XM-3492
-    Transmission:
-    ```
-
-    In this example of the complex builder two additional structures have been added, the **interface builder** and the **director**. 
-
-    There is now also two simple build patterns (``AutomaticCar`` + ``AutomaticCarBuild``) and (``ManualCar`` + ``ManualCarBuild``)
-    ### Director:  
-
-    The director allows you to create "presets" of object builds. For example, in the ``Director`` class we have two functions ``CreateSportsCar`` and ``CreateHonda``. Both of these functions have some preset fields already instantiated. This simplifies object construction.
-
-    ### Build Interface:
-
-    If the build interface did not exist, within the ``Director`` class there would need to be two implementations for each function, one for a ``AutomaticCarBuilder`` object and another for the ``ManualCarBuilder`` object. 
-
-    With the ``IBuild`` interface, the expected properties are defined, and as long as a builder is a child of the interface, it can be used with the ``Director``.
+    Construction is now simplified by using the methods in the ``Director`` class to create presets of ``Car`` and ``CarSchema`` objects.
 
 ## When To Use
 
@@ -458,5 +537,6 @@ Below are three implementation for this car example.
 
 ## Resources
 
-[:material-file-document-outline: Builder](https://refactoring.guru/design-patterns/builder)
+[:material-video-outline: Builder Example](https://www.youtube.com/watch?v=MaY_MDdWkQw)
 
+[:material-file-document-outline: Builder](https://refactoring.guru/design-patterns/builder)
