@@ -2,23 +2,7 @@
 
 The **prototype** design patterns allow for copying existing objects without making the code dependent on the classes. 
 
-## Problem
-
-Lets say a user wants to copy an object. This is normally done by creating a new instance and copying the fields over. However there are a few issues with doing it this way: 
-
-- What if some of the fields are private (can't access and thus can't copy)
-- The class must be known to create a duplicate (dependency)
-- Sometimes only an interface is exposed and the class is unknown
-
-These scenarios stops an object from being copied trivially. 
-
-## Solution 
-
-The prototype design pattern delegates the cloning process to the actual objects that are being cloned. The pattern uses a common interface for all objects that support cloning. 
-
-The interface outlines cloning must be implemented. The objects created from the interface all implement the cloning. 
-
-# Structure
+## Structure
 
 Below is an example of the structure of a prototype design pattern. 
 
@@ -26,398 +10,334 @@ Below is an example of the structure of a prototype design pattern.
     <figure markdown> 
     </figure>
 
-- **Prototype:** interface that declares cloning method (usually just this single cloning method in the prototype).
-- **Concrete Prototype:** class that implements cloning method. This is a normal object, but contains function that handles cloning of itself.
-- **Subclass Prototype:** all children of the concrete also implement cloning. 
+- **Prototype:** interface or abstract class that declares cloning method 
+- **Concrete Prototype:** class that implements cloning method. This is a normal class, but contains function that handles cloning of itself.
+- **Subclass Prototype:** all children of the concrete also implement cloning. This can be expanded to multiple children. 
 
-# Prototype Example
+!!! tip "Prototype Structure + Prototype Registry UML"
+    <figure markdown> 
+    </figure>
 
-Lets say there is a program that kept track a list of shapes. There are two different types of shapes: 
+- **Prototype:** (see prototype structure above)
+- **Concrete Prototype:** (see prototype structure above)
+- **Subclass Prototype:** (see prototype structure above)
+- **Prototype Registry:** A cache that stores frequently used prototypes. Contains method to retrieve from cache, the retrieval method returns a clone copy.
 
-1. Circles
-2. Rectangles
+## Prototype Example
+
+Imagine a program that creates two animals: 
+
+1. Dogs
+2. Turtles
+
+This program should be able to create ``Dogs`` and ``Turtles`` and also deep copy them.
 
 Below are three implementations of this program: 
 
 1. Non Prototype Example 
 2. Prototype Example
-3. Prototype Registry Example
+3. Prototype + Registry Example
 
 ### Non Prototype Example
 
 ???+ Example "Non Prototype Example"
-    ```c# linenums="1" title="Example Code"
-    public class Rectangle
-    {
-        public string Color;
-        private int Width;
-        private int Height;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0;
 
-        public Rectangle(string color, int width, int height)
+    === "C#" 
+
+        ```c# linenums="1" title="Example Code"
+        public class Dog 
         {
-            this.Color = color;
-            this.Width = width;
-            this.Height = height;
+            private string name;
+            private string sex;
+            private string breed;
+
+            public Dog(string name, string sex, string breed) 
+            {
+                this.name = name;
+                this.sex = sex;
+                this.breed = breed;
+            }
+
+            private Dog(Dog dog)
+            {
+                this.name = dog.name;
+                this.sex = dog.sex;
+                this.breed = dog.breed;
+            }
+
+            public Dog Clone()
+            {
+                return new Dog(this);
+            }
         }
 
-        public void getDetails()
+        public class Turtle
         {
-            Console.WriteLine("{0} Rectangle ({1} x {2}) is at ({3}, {4})",
-                    this.Color, this.Height, this.Width, this.PosX, this.PosY);
+            private string name;
+            private string sex;
+            private bool isNinja;
+
+            public Turtle(string name, string sex, bool isNinja)
+            {
+                this.name = name;
+                this.sex = sex;
+                this.isNinja = isNinja;
+            }
+
+            private Turtle(Turtle turtle)
+            {
+                this.name = turtle.name;
+                this.sex = turtle.sex;
+                this.isNinja = turtle.isNinja;
+            }
+
+            public Turtle Clone()
+            {
+                return new Turtle(this);
+            }
         }
-    }
-    ```
+        ```
 
-    ```c# linenums="1" title="Driver Code" hl_lines="8"
-    public void Main()
-    {
-        Rectangle rect1 = new Rectangle("Yellow", 20, 20);
-        rect1.PosX = 100;
-        rect1.PosY = 100;
-        rect1.getDetails();
+        ```c# linenums="1" title="Driver Code" hl_lines="3-4 6-7"
+        static void Main(string[] args)
+        { 
+            Dog dog = new Dog("Alfred", "Male", "Husky");
+            Turtle turtle = new Turtle("Donatello", "Male", true);
 
-        Rectangle rect2 = new Rectangle(rect1.Color, rect1.Width, rect1.Height); // FAIL
-        // Rectangle rect2 = new Rectangle(rect1.Color, 20, 20); 
-        rect2.PosX = rect1.PosX;
-        rect2.PosY = rect1.PosY;
-        rect2.getDetails();
-         
-    } 
-    ```
+            Dog dogClone = dog.Clone();
+            Turtle turtleClone = turtle.Clone();
 
-    ```title="Output"
-    Yellow Rectangle (20 x 20) is at (100, 100)
-    --- CODE FAIL ---
-    ```
+            Console.WriteLine(dogClone);
+            Console.WriteLine(turtleClone);
+        }
+        ```
 
-    In this example cloning a rectangle object results in a failure. This is due to the width and hieght properties in the object being private. 
+        ```title="Output"
+        Dog
+        Turtle
+        ```
+    
+    In this example a ``Dog`` and ``Turtle`` object is created on lines 3 and 4 of the driver code. 
 
-    In line 8 of the driver code, the width and height from ``rect1`` is being read, but since it is private there is no way to read that value to perform the copy. Either the values must be known (not always possible) or its impossible.
+    In lines 6 and 7 of the driver code a clone of each of the objects are created. 
+
+    This is a valid implementation that creates clones. The issue is the type of the object must be known before the clones can be created. For example on line 6, it must be known that the object is an instance of ``Dog`` before the ``Clone`` method can be called. 
+
+    This implementation contains a tight coupling between the object type and the cloning process. 
 
 ### Prototype Example
 
 ???+ Example "Prototype Example"
-    ```c# linenums="1" title="Example Code"
-    public interface IShape
-    {
-        IShape clone();
-    }
 
-    public class Rectangle : IShape
-    {
-        public string Color;
-        private int Width;
-        private int Height;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0;
+    === "C#" 
 
-        public Rectangle(string color, int width, int height)
+        ```c# linenums="1" title="Example Code" hl_lines="1-20"
+        // Prototype (Abstract Class)
+        public abstract class Animal
         {
-            this.Color = color;
-            this.Width = width;
-            this.Height = height;
+            public string name;
+            private string sex;
+
+            public Animal(string name, string sex)
+            { 
+                this.name = name;
+                this.sex = sex;
+            }
+
+            protected Animal(Animal animal)
+            {
+                this.name = animal.name;
+                this.sex = animal.sex;
+            }
+
+            public abstract Animal Clone();
         }
 
-        public IShape clone()
+        // Prototype (Subclass)
+        public class Dog : Animal
         {
-            // Returns a SHALLOW copy of rectangle object
-            return (IShape)this.MemberwiseClone();
+            private string breed;
+
+            public Dog(string name, string sex, string breed) : base(name, sex)
+            {
+                this.breed = breed;
+            }
+
+            private Dog(Dog dog) : base(dog)
+            {
+                this.breed = dog.breed;
+            }
+
+            public override Dog Clone()
+            {
+                return new Dog(this);
+            }
         }
 
-        public void getDetails()
+        // Prototype (Subclass)
+        public class Turtle : Animal
         {
-            Console.WriteLine("{0} Rectangle ({1} x {2}) is at ({3}, {4})", 
-                    this.Color, this.Height, this.Width, this.PosX, this.PosY);
+            private bool isNinja;
+
+            public Turtle(string name, string sex, bool isNinja) : base(name, sex)
+            {
+                this.isNinja = isNinja;
+            }
+
+            private Turtle(Turtle turtle) : base(turtle)
+            {
+                this.isNinja = turtle.isNinja;
+            }
+
+            public override Turtle Clone()
+            {
+                return new Turtle(this);
+            }
         }
-    }
+        ```
 
-    public class Circle : IShape
-    {
-        public string Color;
-        private int Radius;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0; 
-
-        public Circle(string color, int radius)
+        ```c# linenums="1" title="Driver Code"
+        static void Main(string[] args)
         {
-            this.Color = color;
-            this.Radius = radius;
+            // Create list of animals
+            List<Animal> animalList = new List<Animal>();
+            animalList.Add(new Dog("Alfred", "Male", "Husky"));
+            animalList.Add(new Turtle("Donatello", "Male", true));
+
+            // Create copy of each animal in animalList
+            List<Animal> copyList = new List<Animal>();
+            foreach (Animal animal in animalList)
+            {
+                copyList.Add(animal.Clone());
+            }
+
+            // Print copied animals
+            copyList.ForEach(animal => { Console.WriteLine(animal); });
         }
+        ```
 
-        public IShape clone()
-        {
-            // Returns a SHALLOW copy of circle object
-            return (IShape)this.MemberwiseClone();
-        }
+        ```title="Output"
+        Dog
+        Turtle
+        ```
 
-        public void getDetails()
-        {
-            Console.WriteLine("{0} Circle ({1} R) is at ({2}, {3})", 
-                    this.Color, this.Radius, this.PosX, this.PosY);
-        } 
-    }
-    ```
+        In this implementation the prototype abstract class ``Animal`` declares a ``Clone`` method which will handle cloning for the two concrete prototypes ``Dog`` and ``Turtle``.
 
-    ```c# linenums="1" title="Driver Code"
-    public void Main() 
-    {
-        Rectangle rect1 = new Rectangle("Red", 20, 30);
-        rect1.PosX = 40;
-        rect1.PosY = 120;
-        rect1.getDetails();
+        On line 12 of the driver code, all the different ``Animal`` objects are cloned irrespectively of their actual type (``Dog`` vs ``Turtle``). 
 
-        Rectangle rect2 = (Rectangle)rect1.clone();
-        rect2.color = "Blue"
-        rect2.PosX = 0;
-        rect2.getDetails();
-
-        Console.WriteLine("------------------");
-        
-        Circle circ1 = new Circle("Green", 5);
-        circ1.PosX = 80;
-        circ1.PosY = 80;
-        circ1.getDetails(); 
-
-        Circle circ2 = (Circle)circ1.clone();
-        circ2.Color = "Purple"
-        circ2.PosY = 0;
-        circ2.getDetails(); 
-         
-    }
-    ```
-
-    ```title="Output"
-    Red Rectangle (20 x 30) is at (40, 120)
-    Blue Rectangle (20 x 30) is at (0, 120)
-    ------------------ 
-    Green Circle (5 R) is at (80, 80)
-    Yellow Circle (5 R) is at (80, 0)
-    ```
-
-    In this example the ``IShape`` interface ensures that all subclasses of ``IShape`` implement their own cloning function. 
-
-    Using the cloning function, the private ``width`` and ``height`` properties are copied over correctly. 
+        This implementation decouples the coupling between object types and the cloning process thanks to the prototype abstract class. 
 
 ### Prototype + Registry Example
 
-???+ Example "Prototype Example"
-    ```c# linenums="1" title="Example Code"
-    public interface IShape
-    {
-        IShape clone();
-    }
+???+ Example "Prototype + Registry Example"
 
-    public class Rectangle : IShape
-    {
-        public string Color;
-        private int Width;
-        private int Height;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0;
+    === "C#" 
 
-        public Rectangle(string color, int width, int height)
+        ```c# linenums="1" title="Example Code" hl_lines="1-20 64-81"
+        // Prototype (Abstract Class)
+        public abstract class Animal
         {
-            this.Color = color;
-            this.Width = width;
-            this.Height = height;
+            public string name;
+            private string sex;
+
+            public Animal(string name, string sex)
+            { 
+                this.name = name;
+                this.sex = sex;
+            }
+
+            protected Animal(Animal animal)
+            {
+                this.name = animal.name;
+                this.sex = animal.sex;
+            }
+
+            public abstract Animal Clone();
         }
 
-        public IShape clone()
+        // Prototype (Subclass)
+        public class Dog : Animal
         {
-            // Returns a SHALLOW copy of rectangle object
-            return (IShape)this.MemberwiseClone();
+            private string breed;
+
+            public Dog(string name, string sex, string breed) : base(name, sex)
+            {
+                this.breed = breed;
+            }
+
+            private Dog(Dog dog) : base(dog)
+            {
+                this.breed = dog.breed;
+            }
+
+            public override Dog Clone()
+            {
+                return new Dog(this);
+            }
         }
 
-        public void getDetails()
+        // Prototype (Subclass)
+        public class Turtle : Animal
         {
-            Console.WriteLine("{0} Rectangle ({1} x {2}) is at ({3}, {4})", 
-                    this.Color, this.Height, this.Width, this.PosX, this.PosY);
-        }
-    }
+            private bool isNinja;
 
-    public class Circle : IShape
-    {
-        public string Color;
-        private int Radius;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0; 
+            public Turtle(string name, string sex, bool isNinja) : base(name, sex)
+            {
+                this.isNinja = isNinja;
+            }
 
-        public Circle(string color, int radius)
-        {
-            this.Color = color;
-            this.Radius = radius;
-        }
+            private Turtle(Turtle turtle) : base(turtle)
+            {
+                this.isNinja = turtle.isNinja;
+            }
 
-        public IShape clone()
-        {
-            // Returns a SHALLOW copy of circle object
-            return (IShape)this.MemberwiseClone();
+            public override Turtle Clone()
+            {
+                return new Turtle(this);
+            }
         }
 
-        public void getDetails()
+        // Prototype Registry (Class)
+        public class AnimalCache
         {
-            Console.WriteLine("{0} Circle ({1} R) is at ({2}, {3})", 
-                    this.Color, this.Radius, this.PosX, this.PosY);
-        } 
-    }
-    ```
+            private Dictionary<string, Animal> cache = new Dictionary<string, Animal>();
 
-    ```c# linenums="1" title="Driver Code"
-    public void Main() 
-    {
-        Rectangle rect1 = new Rectangle("Red", 20, 30);
-        rect1.PosX = 40;
-        rect1.PosY = 120;
-        rect1.getDetails();
+            public Animal Get(string key)
+            {
+                return cache[key].Clone();
+            }
 
-        Rectangle rect2 = (Rectangle)rect1.clone();
-        rect2.color = "Blue"
-        rect2.PosX = 0;
-        rect2.getDetails();
-
-        Console.WriteLine("------------------");
-        
-        Circle circ1 = new Circle("Green", 5);
-        circ1.PosX = 80;
-        circ1.PosY = 80;
-        circ1.getDetails(); 
-
-        Circle circ2 = (Circle)circ1.clone();
-        circ2.Color = "Purple"
-        circ2.PosY = 0;
-        circ2.getDetails(); 
-         
-    }
-    ```
-
-    ```title="Output"
-    Red Rectangle (20 x 30) is at (40, 120)
-    Blue Rectangle (20 x 30) is at (0, 120)
-    ------------------ 
-    Green Circle (5 R) is at (80, 80)
-    Yellow Circle (5 R) is at (80, 0)
-    ```
-
-    In this example the ``IShape`` interface ensures that all subclasses of ``IShape`` implement their own cloning function. 
-
-    Using the cloning function, the private ``width`` and ``height`` properties are copied over correctly. 
-
-### Prototype + Registry Example
-
-???+ Example "Prototype Example"
-    ```c# linenums="1" title="Example Code"
-    public interface IShape
-    {
-        IShape clone();
-    }
-
-    public class Rectangle : IShape
-    {
-        public string Color;
-        private int Width;
-        private int Height;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0;
-
-        public Rectangle(string color, int width, int height)
-        {
-            this.Color = color;
-            this.Width = width;
-            this.Height = height;
+            public void Put(List<Animal> animals)
+            {
+                animals.ForEach(animal =>
+                {
+                    cache.Add(animal.name, animal.Clone());
+                });
+            }
         }
+        ```
 
-        public IShape clone()
+        ```c# linenums="1" title="Driver Code"
+        static void Main(string[] args)
         {
-            // Returns a SHALLOW copy of rectangle object
-            return (IShape)this.MemberwiseClone();
+            // Create list of animals
+            List<Animal> animalList = new List<Animal>();
+            animalList.Add(new Dog("Alfred", "Male", "Husky"));
+            animalList.Add(new Turtle("Donatello", "Male", true));
+
+            // Add animalList to registry 
+            AnimalCache registry = new AnimalCache();
+            registry.Put(animalList);
+
+            // Pull animals out of registry (these are copied animals)
+            Console.WriteLine(registry.Get("Alfred"));
+            Console.WriteLine(registry.Get("Donatello"));
         }
+        ```
 
-        public void getDetails()
-        {
-            Console.WriteLine("{0} Rectangle ({1} x {2}) is at ({3}, {4})", 
-                    this.Color, this.Height, this.Width, this.PosX, this.PosY);
-        }
-    }
+    This implementation is identical to the previous example except for the addition of the ``AnimalCache`` prototype registry class. 
 
-    public class Circle : IShape
-    {
-        public string Color;
-        private int Radius;
-        public int PosX { get; set; } = 0;
-        public int PosY { get; set; } = 0; 
-
-        public Circle(string color, int radius)
-        {
-            this.Color = color;
-            this.Radius = radius;
-        }
-
-        public IShape clone()
-        {
-            // Returns a SHALLOW copy of circle object
-            return (IShape)this.MemberwiseClone();
-        }
-
-        public void getDetails()
-        {
-            Console.WriteLine("{0} Circle ({1} R) is at ({2}, {3})", 
-                    this.Color, this.Radius, this.PosX, this.PosY);
-        } 
-    }
-
-    public class ShapeManager
-    {
-        private Dictionary<string, IShape> shapes = new Dictionary<string, IShape>();
-
-        public IShape this[string key]
-        {
-            get { return shapes[key] }
-            set { shapes.Add(key, value); }
-        }
-    }
-    ```
-
-    ```c# linenums="1" title="Driver Code"
-    public void Main() 
-    {
-        ShapeManager shapes = new ShapeManager();
-        Rectangle rect1 = new Rectangle("Red", 20, 30);
-        rect1.PosX = 40;
-        rect1.PosY = 120;
-        rect1.getDetails();
-        shapes["rect-001"] = rect1;
-
-        Circle circ1 = new Circle("Green", 5);
-        circ1.PosX = 80;
-        circ1.PosY = 80;
-        circ1.getDetails();  
-        shapes["circ-001] = circ2;
-
-        Console.WriteLine("------------------");
- 
-        Rectangle rect2 = (Rectangle)shapes["rect-001"].clone();
-        rect2.color = "Blue"
-        rect2.PosX = 0;
-        rect2.getDetails();
-
-        Circle circ2 = (Circle)shapes["circ-001"].clone();
-        circ2.Color = "Purple"
-        circ2.PosY = 0;
-        circ2.getDetails(); 
-    }
-    ```
-
-    ```title="Output"
-    Red Rectangle (20 x 30) is at (40, 120)
-    Green Circle (5 R) is at (80, 80)
-    ------------------ 
-    Blue Rectangle (20 x 30) is at (0, 120)
-    Yellow Circle (5 R) is at (80, 0)
-    ```
-    
-    This example is similar to the basic prototype solution except there is now a manager that handles all shapes. This is the true power of prototypes as previous knowledge of different shape types were not needed to construct the manager. 
+    This class store frequently deep copied objects into a cache. Whenever a copy needs to be pulled, the ``AnimalCache`` will automatically create a clone and return it for the user.
 
 ## When To Use 
 
