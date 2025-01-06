@@ -262,3 +262,19 @@ Below is an example of designing this program with and without the bridge patter
     The following SOLID principles are now fixes from the previous example:
 
     - Single responsibility principle: the form and color are now decoupled from one another and won't effect each other. 
+
+## When To Use
+
+- When the need to subclass many times occur but the relationship is orthogonal with one another (not straight hierarchy but independent separated hierarchies).
+- When composition is preferred over inheritance. 
+- When dividing a monolithic class that has several variants of some functionality. 
+    - Splitting things into several hierarchies but still having them related
+
+## Resources
+
+[:material-file-document-outline: Bridge](https://refactoring.guru/design-patterns/bridge)
+
+[:material-file-document-outline: Bridge](https://www.geeksforgeeks.org/bridge-design-pattern/)
+
+[:material-file-document-outline: Bridge](https://www.digitalocean.com/community/tutorials/bridge-design-pattern-java)
+
