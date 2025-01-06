@@ -136,12 +136,14 @@ A quick break down of this example. There are two services (legacy vs modern) th
         public class XmlData { }
         public class JsonData { }
 
+        // Client Interface or Target Interface (Interface)
         public interface ILegacyWeatherService
         {
             public void GetCurrentWeather(XmlData location);
             public void GetWeekForecast(XmlData location);
         }
 
+        // Client (Class)
         public class LegacyWeatherService : ILegacyWeatherService
         {
             public void GetCurrentWeather(XmlData location)
@@ -155,6 +157,7 @@ A quick break down of this example. There are two services (legacy vs modern) th
             }
         }
 
+        // Service or Adaptee (Class)
         public class ModernWeatherService
         { 
             public void GetCurrentWeather(JsonData location)
@@ -168,6 +171,7 @@ A quick break down of this example. There are two services (legacy vs modern) th
 
         }
 
+        // Adapter (Class)
         public class ModernWeatherServiceAdapter : ILegacyWeatherService
         {
             private ModernWeatherService modernWeatherService;
