@@ -1,201 +1,238 @@
 # Adapter
 
-The **Adapter** is a design pattern that allows object with incompatible interfaces to collaborate.
+The **Adapter** is a design pattern that allows object with incompatible interfaces to collaborate. This adapter bridges between two classes that would normally not be able to communicate with one another. 
 
-## Problem
+Sometimes the Adapter design pattern is also known as a **wrapper** design pattern since it wraps the incompatible interface/class to make it interact with the compatible version. 
 
-Assume there is a program that utilizes an API service which returns data in XML format (will label this as API service 1). 
+## Implementations
 
-Now assume the program is scaling up and an additional API service (will call it API service 2) needs to be integrated to gather more data. However, this API service returns all its data in JSON format. 
+There are several implementations of the adapter design pattern that varies based on programming language and context.
 
-There are two bad approaches to solving this issue: 
 
-1. Rewrite API service 1 or 2 to have a standard data format
-2. Rewrite program to handle both data types
+1. Object adapter (composition based)
 
-Both of these require refactoring which should be avoided. The best solution is utilizing the **adapter** design pattern. 
+    - Adapter holds an instance of the **service or adaptee** and implements the **client or target interface**. 
+    - More flexible as it allows a single adapter to work with multiple **services or adaptees* 
+    - Widely used in language like C# or Java
 
-## Solution
+2. Class adapter (inheritance based)
 
-The adapter pattern integrates a class that inherits from whatever object is already supported. In this example, the adapter class would inherit from the API service 1 object. 
-
-The adapter class then takes in objects of the other type (API service 2 object) and contains override methods necessary to have it behave like the original type (API service 1 object).
-
-Essentially, the other object type (API service 2) is being wrapped with all the necessary functionalities for it to behave as the original type (API service 1).
+    - Adapter class inherits from both the **client or target interface** and the **service or adaptee**. 
+    - Programming languages that allow multiple inheritance (C++) are more likely to use this technique
 
 ## Structure
 
+Below is an example of the object adapter structure
+
+!!! tip "Adapter (Object) Structure UML"
+    <figure markdown>
+    </figure>
+
 - **Client:** class that contains existing business logic.
-- **Client Interface:** class that represents object type that must be used to interact with client code. 
-- **Service:** some useful class/object that is incompatible with client code (usually 3rd-party or legacy code)
+- **Client Interface or Target Interface:** defines the interface expected by the client. It declares the methods the client can use.
+- **Service or Adaptee:** some useful class/object that is incompatible with client code (usually 3rd-party service or legacy code)
 - **Adapter:** class that *implements/inherits* the client interface AND *wraps* the service class. It receives calls from the client and translates it for the wrapper service object to understand. 
 
 ## Adapter Example
 
-Lets say there is a program that gathers meteorology data from API services to display weather forecast for the Washington state area.
+Consider a scenario where there is a program that displays weather information based on the current location data. The program generates weather data in XML format and the weather service API takes in XML data and returns the corresponding weather information. 
 
-Originally, there was a single API service to gather the data which was built alongside the client program. This API returns data corresponding to Washington and is in a XML format. Lets assume there is a new API service that needs to be implemented that will fetch new data for Idaho, but this API is in JSON format.
+A new weather service is now available and the code should be updated to use this new service. The issue is this new service only takes in JSON data for the location data. Additionally, the service is a third party service and the source code can not be edited. 
 
-The program consists of the following: 
+The adapter design pattern helps bridge the gap with communicating with this incompatible new service. 
 
-1. Client code which contains function to forecast the data.
-2. Washington meteorology data API (XML)
-3. Idaho meteorology data API (JSON)
+A quick break down of this example. There are two services (legacy vs modern) that both expects two different location data types (XML vs JSON)
 
-Below are two implementations to integrate both API into the client code
-
-1. Non Adapter Solution
-2. Adapter Solution
+- Legacy Service: XML data
+- Modern Service: JSON data
 
 ### Non Adapter Example
 
 ???+ Example "Non Adapter Example"
 
-    ```c# linenums="1" title="Example Code"
-    public class Forecaster
-    {
-        public string GetForecast(WashingtonAPI meteorologyData)
+    === "C#" 
+
+        ```c# linenums="1" title="Example Code"
+        public class XmlData { }
+        public class JsonData { }
+
+        public interface ILegacyWeatherService
         {
-            // Assume XmlData class has a function called XmlExtrapolate that returns forecast data
-            string forecastWashington = meteorologyData.GetData().XmlExtrapolate();
-            return "Forecast: " + forecastWashington;
+            public void GetCurrentWeather(XmlData location);
+            public void GetWeekForecast(XmlData location);
         }
 
-        public string GetForecast(IdahoAPI meteorologyData)
+        public class LegacyWeatherService : ILegacyWeatherService
+        {
+            public void GetCurrentWeather(XmlData location)
+            {
+                Console.WriteLine("Using XML Data to get current weather data...");
+            }
+
+            public void GetWeekForecast(XmlData location)
+            {
+                Console.WriteLine("Using XML Data to get forecast for the week...");
+            }
+        }
+
+        public class ModernWeatherService
         { 
-            // Assume XmlData class has a function called JsonExtrapolate that returns forecast data
-            string forecastIdaho = meteorologyData.GetData().JsonExtrapolate();
-            return "Forecast: " + forecastIdaho; 
-        }
-    }
+            public void GetCurrentWeather(JsonData location)
+            {
+                Console.WriteLine("Using JSON Data to get current weather data..."); }
 
-    public class WashingtonAPI
-    {
-        // Other API Functionality
-         
-        public XmlData GetData()
-        {
-            return new XmlData();
-        }
-    }
+            public void GetWeekForecast(JsonData location)
+            {
+                Console.WriteLine("Using JSON Data to get forecast for the week...");
+            }
 
-    public class IdahoAPI 
-    {
-        // Other API Functionality
-         
-        public JsonData GetData()
+        }
+        ```
+
+        ```c# linenums="1" title="Driver Code" hl_lines="1-5 11-13"
+        public static JsonData ConvertXmlToJson(XmlData location)
         {
+            Console.WriteLine("Converting XML data to JSON");
             return new JsonData();
         }
-    } 
-    ```
 
-    ```c# linenums="1" title="Driver Code"
-    Forecaster forecastService = new Forecaster();
-    WashingtonAPI wApi = new WashingtonApi();
-    IdahoAPI iApi = new IdahoAPI();
+        static void Main(string[] args)
+        { 
+            XmlData geoLocation = new XmlData();
 
-    Console.WriteLine(forecastService.GetForecast(wApi))
-    Console.WriteLine(forecastService.GetForecast(iApi))
-    ``` 
+            // LegacyWeatherService service = new LegacyWeatherService();
+            // service.GetCurrentWeather(geoLocation);
+            // service.GetWeekForecase(geoLocation);
 
-    ```title="Output"
-    Forecast: <Washington forecast...>
-    Forecast: <Idaho forecast...>
-    ```  
+            ModernWeatherService service = new ModernWeatherService();
+            JsonData geoLocationJSON = ConvertXmlToJson(geoLocation);
+            service.GetCurrentWeather(geoLocationJSON);
+            service.GetWeekForecast(geoLocationJSON);
+        }
+        ``` 
 
-    In this example there are the following classes: 
+        ```title="Output"
+        Converting XML data to JSON
+        Using JSON Data to get current weather data...
+        Using JSON Data to get forecast for the week...
+        ```  
 
-    - ``Forecaster`` the client code
-    - ``WashingtonAPI`` API that returns Washington weather data
-    - ``IdahoAPI`` API that returns Idaho weather data
+        In this example, the adapter design pattern was not use. Instead, a new method ``ConvertXmlToJson`` was added to handle converting the ``XmlData`` location data to the ``JsonData`` format. 
 
-    There are also two classes not shown: 
+        This implementation required going into the client code and modifying all instances of the ``XmlData`` location data and converting it to the new data type. 
 
-    - ``XmlData`` fake class to represent XML data
-    - ``JsonData`` fake class to represent JSON data
+        This violates the following SOLID principles: 
 
-    In this solution, method overloading was used to handle the different API services. 
-    
-    This solution is not ideal as it requires refactoring of the ``Forecaster`` class. This is also a bad solution due to the extremely similar code found in both method overloads. This indicates it could be rewritten into a single method. 
+        - Single responsibility principle: the client code had to be refactored to introduce conversion code
+        - Open-closed principle: switching between ``ModernWeatherService`` and ``LegacyWeatherService`` does not work without changing client code first
 
-    This issues are addressed with the adapter design pattern. 
-    
 ### Adapter Example
 
 ???+ Example "Adapter Example"
 
-    ```c# linenums="1" title="Example Code"
-    public class Forecaster
-    {
-        public string GetForecast(WashingtonAPI meteorologyData)
+    === "C#"
+
+        ```c# linenums="1" title="Example Code" hl_lines="36-62"
+        public class XmlData { }
+        public class JsonData { }
+
+        public interface ILegacyWeatherService
         {
-            // Assume XmlData class has a function called XmlExtrapolate that returns forecast data
-            string forecast = meteorologyData.GetData().XmlExtrapolate();
-            return "Forecast: " + forecastWashington;
-        }
-    }
-
-    public class WashingtonAPI
-    {
-        // Other API Functionality
-
-        public XmlData GetData()
-        {
-            return new XmlData();
-        }
-    }
-
-    public class WashingtonIdahoAdapter : WashingtonAPI
-    {
-        private IdahoAPI Api;
-
-        WashingtonIdahoAdapter(IdahoAPI idahoApi)
-        {
-            Api = idahoApi;
+            public void GetCurrentWeather(XmlData location);
+            public void GetWeekForecast(XmlData location);
         }
 
-        public XmlData ConverToXmlData(IdahoApi api)
+        public class LegacyWeatherService : ILegacyWeatherService
         {
-            // Converting code...
-            return convertedApi;
+            public void GetCurrentWeather(XmlData location)
+            {
+                Console.WriteLine("Using XML Data to get current weather data...");
+            }
+
+            public void GetWeekForecast(XmlData location)
+            {
+                Console.WriteLine("Using XML Data to get forecast for the week...");
+            }
         }
 
-        public XmlData GetData()
-        {
-            return ConvertToXmlData(Api)
+        public class ModernWeatherService
+        { 
+            public void GetCurrentWeather(JsonData location)
+            {
+                Console.WriteLine("Using JSON Data to get current weather data..."); }
+
+            public void GetWeekForecast(JsonData location)
+            {
+                Console.WriteLine("Using JSON Data to get forecast for the week...");
+            }
+
         }
-    }
 
-    public class IdahoAPI
-    {
-        // Other API Functionality
-    }
+        public class ModernWeatherServiceAdapter : ILegacyWeatherService
+        {
+            private ModernWeatherService modernWeatherService;
 
-    ```
+            public ModernWeatherServiceAdapter() 
+            {
+                modernWeatherService = new ModernWeatherService(); 
+            }
 
-    ```c# linenums="1" title="Driver Code"
-    Forecaster forecastService = new Forecaster();
-    WashingtonAPI wApi = new WashingtonApi();
-    IdahoAPI iApi = new IdahoAPI();
-    WashingtonAPI adapter = new WashingtonIdahoAdapter(iApi);
+            public void GetCurrentWeather(XmlData location)
+            {
+                JsonData jsonData = ConvertXmlToJson(location);
+                modernWeatherService.GetCurrentWeather(jsonData);
+            }
 
-    Console.WriteLine(forecastService.GetForecast(wApi))
-    Console.WriteLine(forecastService.GetForecast(adapter))
-    ``` 
+            public void GetWeekForecast(XmlData location)
+            {
+                JsonData jsonData = ConvertXmlToJson(location);
+                modernWeatherService.GetWeekForecast(jsonData);
+            }
 
-    ```title="Output"
-    Forecast: <Washington forecast...>
-    Forecast: <Idaho forecast...>
-    ```
+            private JsonData ConvertXmlToJson(XmlData location)
+            {
+                Console.WriteLine("Converting XML data to JSON");
+                return new JsonData();
+            }
+        }
+        ```
 
-    In this Adapter solution there are the following classes: 
+        ```c# linenums="1" title="Driver Code" hl_lines="5-6"
+        static void Main(string[] args)
+        {
+            XmlData geoLocation = new XmlData();
 
-    - ``Forecaster`` the client code
-    - ``WashingtonAPI`` API that returns Washington weather data
-    - ``IdahoAPI`` API that returns Idaho weather data
-    - ``WashingtonIdahoAdapter`` adapter to convert Idaho API to XmlData
+            // LegacyWeatherService service = new LegacyWeatherService();
+            ModernWeatherServiceAdapter service = new ModernWeatherServiceAdapter();
 
-    In this solution none of the preexisting classes had to be modified to integrate the new ``IdahoAPI`` class. This is also true for any future API services that need to be added. 
+            service.GetCurrentWeather(geoLocation);
+            service.GetWeekForecast(geoLocation);
+        }
+        ``` 
 
+        ```title="Output"
+        Converting XML data to JSON
+        Using JSON Data to get current weather data...
+        Converting XML data to JSON
+        Using JSON Data to get forecast for the week...
+        ```
 
+    In this example the object adapter was introduce (line 36-62) which automatically handles conversion between the two data types. The adapter also inherited from the ``ILegacyWeatherService`` interface which guarantees that the behavior between the Legacy service and the Modern service will be the same. 
+
+    As seen on line 5 and 6 of the driver code, the two services can be used interchangeably without causing issues to the rest of the client code. 
+
+    This addresses the two SOLID principles that were broken before: 
+
+    - Single responsibility principle: client code now can remain the same (only need to change which service is desired).
+    - Open-closed principle: the Legacy and Modern service can be used interchangeably.
+
+## When To use
+
+- When connecting systems or components that weren't built to work together
+- When existing code or libraries don't match the current system
+
+## Resources
+
+[:material-file-document-outline: Adapter](https://refactoring.guru/design-patterns/adapter)
+
+[:material-file-document-outline: Adapter](https://www.geeksforgeeks.org/adapter-pattern/)
