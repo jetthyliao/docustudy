@@ -9,7 +9,7 @@ The **bridge** design pattern allows for large classes or sets of closely relate
 
 Below is an example of the bridge structure
 
-!!! tip "Adapter (Object) Structure UML"
+!!! tip "Bridge (Object) Structure UML"
     <figure markdown>
     </figure>
 
