@@ -16,8 +16,8 @@ Below is an example of the abstract factory structure
 
 - **Abstract Products:** abstract class which represents the distinct types of a product.
 - **Concrete Products:** various implementations of the abstract products.
-- **Abstract Factory:** interface which declares the method used to create the various abstract products.
-- **Concrete Factory:** implementation of the creation method. Each of these concrete factory corresponds to a **set** of concrete products.
+- **Abstract Factory:** interface which declares the method used to create the various products.
+- **Concrete Factory:** implementation of the creation method. Each of these concrete factory corresponds to a **set** (or family) of concrete products.
 
 ## Abstract Factory Example
 
@@ -148,13 +148,13 @@ This is a good example of when to use the abstract factory design patterns since
     - ``AsusManufacturer`` is a factory that contains methods to create ASUS products (GPU and Monitor)
     - ``MsiManufacturer`` is a factory that contains methods to create MSI products (GPU and Monitor)
 
-    The issue with this implementation can be seen in the driver code. The code expects either a ``AsusManufacturer`` or ``MsiManufacturer`` object. Lets say the client code gets expanded with more behaviors, it would need to continue to handle both object types. 
+    The issue with this implementation can be seen in the driver code. The code expects either a ``AsusManufacturer`` or ``MsiManufacturer`` object. Lets say the client code gets expanded with more behaviors that is dependent on the manufacturer classes, that code would need to continue to handle both type of manufacturer classes. 
 
     This issue becomes bigger when a new manufacturer type gets introduce. All the extended behavior would need to be updated again to handle a third manufacturer.
 
     This implementation breaks the following SOLID principles: 
 
-    - Single responsibility principle: New reason to change = client code would now need to be updated if adding new family of product
+    - Single responsibility principle: New reason to change = client code would now need to be updated if adding new family of products
     - Open-Closed principle: Adding a new family of products will break all client code
 
 ### Abstract Factory Example
@@ -248,7 +248,7 @@ This is a good example of when to use the abstract factory design patterns since
         }
         ```
 
-        ```c# linenums="1" title="Driver Code" hl_lines="20-21"
+        ```c# linenums="1" title="Driver Code" hl_lines="4 8 13 20-21"
         static void Main(string[] args)
         {
             var desiredCompany = "MSI";
@@ -282,7 +282,7 @@ This is a good example of when to use the abstract factory design patterns since
 
     The ``AsusManufacturer`` and ``MsiManufacturer`` classes are subclasses of the **abstract factory** and handles creating the respective set of products. 
 
-    In the driver code either manufacturer subclass can be assigned to the ``company`` variable. Either way, it does not break the rest of the code due to the abstract factory. The abstract factory ensures that each implementation has all the methods the rest of the code expects to see. This can be seen on line 20-21 in the driver code.
+    In the driver code on line 20-21, either manufacturer subclass can be assigned to the ``company`` variable without breaking the rest of the code. This is due to the abstract factory. The abstract factory ensures that each implementation has all the methods the rest of the code expects to see. 
 
     This implementation fixes the following SOLID principles: 
 

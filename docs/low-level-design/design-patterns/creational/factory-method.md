@@ -97,12 +97,12 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
         Preparing a succulent Chinese meal
         ```
 
-    The main issue with this implementation can be seen in the ``OrderMeal`` function found in lines 19-35. Every time the restaurant needs to perform some sort of task related to a type of meal, it must first determine what meal it is dealing with. It also causes a tight coupling between various meals and the ``Restaurant`` class. 
+    Thl main issue with this implementation is the ``OrderMeal`` function in lines 19-35. Every time the restaurant needs to perform a task (such as cooking the meal), it must first know what type of meal (``ItalianMeal`` or ``ChineseMeal``) its dealing with. This causes a tight coupling between various meals and the ``Restaurant`` class since adding new meals or changes to the meals constructors require updating the ``Restaurant`` class. 
 
     This implementation breaks the following SOLID principles:
 
-    - Single Responsibility Principle: if new meal types are added, the restaurant class needs to be modified. 
-    - Open-Closed Principle: adding new meal types requires modification.
+    - Single Responsibility Principle: ``Restaurant`` class has two reasons to be modified now: new meal classes being added and business logic updates to ``Restaurant`` class
+    - Open-Closed Principle: if new meal classes are added, the ``Restaurant`` class needs to be modified. 
     - Dependency Inversion Principle: the ``Restaurant`` class depends on the ``ChineseMeal`` and ``ItalianMeal`` class.
 
 ### Factory Method Example
@@ -170,7 +170,7 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
         }
         ```
 
-        ```c# linenums="1" title="Driver Code" hl_lines="21"
+        ```c# linenums="1" title="Driver Code" hl_lines="6 10 14 21"
         static void Main(string[] args)
         {
             // var mealPreference = "Italian";
@@ -200,15 +200,15 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
         Preparing a succulent Chinese meal
         ```
     
-    This example introduces slightly more complexity, but there are now interfaces to abstract the ``Restaurant`` class and the various ``Meal`` classes. 
+    This example introduces a slight amount of complexity with interfaces to abstract the ``Restaurant`` class and the various ``Meal`` classes. 
 
-    There is also a **factory method** to handle creating the concrete ``Products``. 
+    The ``Restaurant`` class (**Creator**) now has a **factory method** to handle creation of ``Meal`` subclasses (**Products**).
 
-    As seen on line 21, it does not matter whether the ``ChineseRestaurant`` or the ``ItalianRestaurant`` is implemented, both will not break the rest of the code. This is because both subclasses inherit from the ``Restaurant`` class.
+    As seen on line 21 of the driver code, it does not matter whether the ``restaurant`` variable (line 6) is defined with a ``ChineseRestaurant`` or ``ItalianRestaurant`` class, both will not break the rest of the code. This is because both subclasses inherit from the ``Restaurant`` class.
 
-    With this implementation we've fixed the following issues that broke the SOLID principles: 
+    With this implementation we've fixed issues that broke the following SOLID principles: 
 
-    - Single responsibility principle: if new meals need to be added, none of the classes need to be modified. Instead, all that needs to be done is to create a new ``Restaurant`` subclass and a new ``Product`` subclass. 
+    - Single responsibility principle: if new meals need to be added, none of the classes need to be modified. Instead, all that needs to be done is to create a new ``Restaurant`` subclass and a new ``Meal`` subclass. 
     - Open-Closed principle: same as single responsibility principle
     - Dependency Inversion: the factory method moved the creation of meals to the concrete ``Restaurant`` classes.
 
