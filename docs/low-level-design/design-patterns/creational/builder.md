@@ -14,8 +14,9 @@ Below is an example of a simple builder structure
           <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method-light.svg#only-light) -->
     </figure>
 
+- **Builder Interface:** defines common product construction that is shared between all types of builder (default settings) 
 - **Products:** object which represents some sort of product.
-- **Builders:** object that constructs the instance of a product and contains method to set all the fields.
+- **Concrete Builders:** object that constructs the instance of a product and contains method to set all the fields.
 
 Below is an example of a builder structure
 
@@ -24,10 +25,9 @@ Below is an example of a builder structure
           <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method.svg#only-dark) -->
           <!-- ![Factory Method Diagram](../../assets/images/design-patterns/factory-method-light.svg#only-light) -->
     </figure>
-
+- **Builder Interface:** (see simple builder above) 
 - **Products:** (see simple builder above)
-- **Builders:** (see simple builder above)
-- **Builder Interface:** defines common product construction that is shared between all types of builder (default settings) 
+- **Concrete Builders:** (see simple builder above)
 - **Director:** defines the order in which to call construction steps. Basically contains presets of certain products to create.
 
 ## Builder Example
@@ -132,7 +132,7 @@ Below are three implementations for this car example.
         Model: S2000, Engine: Inline 4 Cylinder Turbo-charged, Seats: 2, Color: Yellow, Spoiler: Carbon Fiber
         ```
 
-    In this implementation there are two types of objects that is created ``Car`` and ``CarSchema``. 
+    In this implementation there are two types of objects that are created ``Car`` and ``CarSchema``. 
 
     In the driver code, three instances were made out of these two classes. They are the following: 
 
@@ -142,7 +142,7 @@ Below are three implementations for this car example.
 
     On lines 3 and 6 of the driver code, both these lines are initializing Toyota Tacoma's. They both require an empty value for ``Spoiler`` since the ``Car`` and ``CarSchema`` class expects one. This is the main issue that the builder design pattern addresses. 
 
-    Assume the rest of the program builds on top of the Toyota Tacoma objects. If a new car such as **Semi-Truck** were added and it required a new field called ``CargoBox`` this would require refactoring any code that uses the ``Car``class. 
+    Assume the rest of the program builds on top of the Toyota Tacoma objects. If a new car, **Semi-Truck**, were added and it required a new field called ``CargoBox``. This would require refactoring any code that uses the ``Car``class to pass in this new ``CargoBox`` field. 
 
     This breaks the following SOLID principles: 
 
@@ -326,9 +326,9 @@ Below are three implementations for this car example.
 
     The ``Builder`` interface lets the program know what fields will be expected by the ``Car`` and ``CarSchema`` class. The actual builders ``CarBuilder`` and ``CarSchemaBuilder`` handles the construction of the ``Car`` and ``CarSchema`` classes. 
 
-    Using the same example in the bad example, what if a new car, **Semi-Truck**, was added with the new field ``CargoBox``? 
+    Using the same scenario in the bad example, what if a new car, **Semi-Truck**, was added with the new field ``CargoBox``? 
 
-    - All the classes in this example would have to be updated to handle the new field.  
+    - All the classes would need to be updated to handle the new field.  
     - **The code in the driver code would remain the same without any issues**.
 
     The addition of this simple builder design pattern allows for construction of the products to be separated. Meaning if construction changes (new fields are added), it doesn't effect products already created (the ``Car`` and ``CarSchema`` objects created in driver code).
@@ -528,7 +528,7 @@ Below are three implementations for this car example.
     
     This implementation is identical to the simple builder example except for the ``Director`` class which simplifies the construction process even more. 
 
-    Construction is now simplified by using the methods in the ``Director`` class to create presets of ``Car`` and ``CarSchema`` objects.
+    Construction is now simplified by using the methods in the addition of the ``Director`` class which creates presets of ``Car`` and ``CarSchema`` objects.
 
 ## When To Use
 
