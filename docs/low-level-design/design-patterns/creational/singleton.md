@@ -20,7 +20,7 @@ Below is an example of the singleton structure
 
 ## Singleton Example
 
-This example is implementing a database connection pool. To control access to the database, there should only be one connection pool that is being used. This is a perfect example of when to use the singleton design pattern as it will guarantee one connection pool is established, and a way to access this pool.
+Below is an example of a program implementing a database connection pool. To control access to the database, there should only be one connection pool that is being used. This is a perfect example of when to use the singleton design pattern as it will guarantee one connection pool is established, and a way to access this pool.
 
 ### Non Singleton Example
 
@@ -66,7 +66,7 @@ This example is implementing a database connection pool. To control access to th
         Using connection pool to query
         ```
 
-    In this example, the ``DatabaseConnectorPool`` class is created twice making two instances of the class, as seen in the driver code. 
+    In this example, there are two ``DatabaseConnectorPool`` instances (``pool1`` and ``pool2``) as seen in the driver code. 
 
     In a real world scenario this would mean two connection pools have been created to the database which is a waste of resources, or if the database doesn't handle concurrent reads/writes well, it could cause errors down the line.
 
@@ -126,7 +126,7 @@ This example is implementing a database connection pool. To control access to th
     Using connection pool to query
     ```
 
-    In this example, using the the singleton pattern, the first call of ``GetInstance`` created a new ``DatabaseConnectorPool`` instance and assigned it to the ``_instance`` variable. All subsequent calls to the ``GetInstance`` method will now reference this same instance.
+    In this example, using the the singleton pattern, the first call of ``GetInstance`` creates a new ``DatabaseConnectorPool`` instance and assigns it to the ``_instance`` variable. All subsequent calls to the ``GetInstance`` method will now reference this same instance.
 
     The ``DatabaseConnectorPool`` class is also set with the ``sealed`` keyword to ensure it cannot be inherited.
 

@@ -12,7 +12,7 @@ Below is an example of the structure of a prototype design pattern.
 
 - **Prototype:** interface or abstract class that declares cloning method 
 - **Concrete Prototype:** class that implements cloning method. This is a normal class, but contains function that handles cloning of itself.
-- **Subclass Prototype:** all children of the concrete also implement cloning. This can be expanded to multiple children. 
+- **Subclass Prototype:** all children of the concrete prototype also implement cloning. This can be expanded to multiple children. 
 
 !!! tip "Prototype Structure + Prototype Registry UML"
     <figure markdown> 
@@ -196,7 +196,7 @@ Below are three implementations of this program:
         }
         ```
 
-        ```c# linenums="1" title="Driver Code"
+        ```c# linenums="1" title="Driver Code" hl_lines="12"
         static void Main(string[] args)
         {
             // Create list of animals
