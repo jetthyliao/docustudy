@@ -1,0 +1,34 @@
+<mxfile host="app.diagrams.net" modified="2023-05-08T14:23:34.216Z" agent="Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0" etag="WYHIaOoa1GYsGtXV0vUn" version="21.2.4" type="device">
+  <diagram name="Page-1" id="kYuUz2JP7pV5Yyx3ivag">
+    <mxGraphModel dx="1410" dy="724" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="17YMqfclEKPuLEW7rU9y-2" value="Source" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=21;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="210" y="560" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-5" value="Test" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=21;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="530" y="560" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-6" value="Build" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=21;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="370" y="560" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-7" value="Test Environment" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=21;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="830" y="560" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-8" value="Prod Environment" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=21;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="560" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-9" value="Continuous Integration" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fontSize=22;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="219" y="511" width="441" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-10" value="Continuous Delivery" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;fontSize=22;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="842" y="511" width="398" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="17YMqfclEKPuLEW7rU9y-19" value="&lt;font style=&quot;font-size: 22px;&quot;&gt;Release&lt;/font&gt;" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="690" y="560" width="140" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
