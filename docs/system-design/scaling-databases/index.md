@@ -2,8 +2,8 @@
 
 Review the following topics before delving into this section:
 
-- [Relational Databases](../../../highlevel/database/relational/) 
-- [Non-Relational Databases](../../../highlevel/database/nonrelational/) 
+- Relational Databases
+- Non-Relational Databases
 
 There are two approaches to scaling up databases (these can be done in unison)
 

@@ -1,6 +1,6 @@
 # Transaction Models
 
-The [CAP Theorem](../../cap) states it is impossible to achieve both **consistency** and **availability** in a partition tolerant distributed system. Therefore, when it comes to database transaction models, there are *two primary models*, one that prioritizes consistency and one for availability. 
+The [CAP Theorem](../cap.md) states it is impossible to achieve both **consistency** and **availability** in a partition tolerant distributed system. Therefore, when it comes to database transaction models, there are *two primary models*, one that prioritizes consistency and one for availability. 
 
 ## ACID Model
 
@@ -19,7 +19,7 @@ Atomic: each transaction is either properly carried out or the process halts and
 
 Consistent: a processed transaction will never endanger the data integrity of the database.
 
-- Basic: Does not violate [integrity](../../../highlevel/database/relational/design/#reviewing-data-integrity) of the database.
+- Basic: Does not violate integrity of the database.
 - Ensures if something being added will compromise the database structure, it will get aborted
 - Helps maintain schema if there is one
 - This could also be used as maintaining constraints. EX. Bank Withdrawal database shouldn't allow negative account balances. 
