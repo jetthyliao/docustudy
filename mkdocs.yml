@@ -36,6 +36,15 @@ nav:
   #   Low level design
   #
   ##############################################################################
+  - General:
+    - Networking: 
+      - 'general/networking/index.md'
+
+  ##############################################################################
+  #
+  #   Low level design
+  #
+  ##############################################################################
   - Low Level Design: 
     - 'low-level-design/index.md'
     - Object Oriented Programming:
