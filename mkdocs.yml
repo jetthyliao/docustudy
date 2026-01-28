@@ -39,7 +39,6 @@ nav:
   - General:
     - Networking: 
       - 'general/networking/index.md'
-      - Sockets: 'general/networking/sockets.md'
   ##############################################################################
   #
   #   Low level design
