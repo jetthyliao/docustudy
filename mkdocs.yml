@@ -25,6 +25,7 @@ theme:
     - navigation.top
     - navigation.indexes
     - content.code.copy
+    - content.tooltips
   icon: 
     admonition: 
       abstract: fontawesome/solid/code 
@@ -137,6 +138,12 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  
+  # Tooltips
+  - abbr
+  # - attr_list
+  # - pymdownx.snippets
+
 
   # Formatting
   - pymdownx.critic

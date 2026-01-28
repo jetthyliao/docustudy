@@ -1,39 +1,41 @@
+<!-- list of things to do 
+TODO: Add python non factory example
+TODO: Redo c# factory example
+TODO: Redo c# non factory example
+TODO: read over and fix mistakes
+-->
 # Factory Method
 
-The **Factory Method** design pattern defines an interface for creating object, but lets subclasses decide which class to instantiate. This pattern lets a class defer instantiation to subclasses.
+## Overview
 
-## Structure
+The **Factory Method** design pattern defines an interface for creating objects, but allows subclasses to alter the type of object that is created.
 
-Below is an example of the structure of a factory method design pattern. 
+### Structure
 
-!!! tip "Factory Method Structure UML"
-    <figure markdown>
-      <!-- 
-      ![Factory Method Diagram](../../assets/images/design-patterns/factory-method.svg#only-dark)
-      ![Factory Method Diagram](../../assets/images/design-patterns/factory-method.svg#only-light) 
-      -->
-    </figure markdown>
-
-- **Creator:** class that contains the factory method and any other optional additional operations. The role of the ``Creator`` class is not solely product creation, it has other operations that related to the product as well. 
+- **Creator:** class that contains the *factory method* and additional optional operations. The role of the ``Creator`` class is not solely product creation, it has other operations that are related to the product as well. 
 
     - **Factory Method:** method that creates the subclasses, the return type should be the Product interface. This can be set to ``abstract`` so subclasses implement their own versions of the method, or it can return some sort of default.
 
+- **Concrete Creator:** these are the subclass objects that overrides the ``factory method`` to have its own object construction. The object it constructs is a concrete product.
 - **Product:** interface that declares all the common properties between objects that can be produced by the ``Creator``
-
-- **Concrete Creator:** these are the subclass objects that overrides the ``factory method`` to have its own object construction.
-
 - **Concrete Product:** specific implementations of product interface
 
 ## Factory Method Example
 
-Imagine a program that simulates going out to eat at a restaurant. 
+### Problem
 
-In the following examples there are two meal preferences: 
+Imagine a new feature to send notifications. It initially supports Microsoft Teams, but is extended later to also support SMS notifications.
 
-- Italian meal
-- Chinese meal
+This program has two classes to handle notifications: 
 
-The program also has a ``Restaurant`` class that will prepare a meal based on the type of preference.
+- ``TeamsNotification``
+- ``SMSNotification``
+
+It also has a class ``Sender`` to construct ``Notifications`` and trigger sending messages on them.
+
+!!! note "Try It Out!"
+    Try to integrate the factory method to create this feature! You can take a look at the ``Non Factory Example`` to get started.
+
 
 ### Non Factory Method Example
 
@@ -200,22 +202,120 @@ The program also has a ``Restaurant`` class that will prepare a meal based on th
         Preparing a succulent Chinese meal
         ```
     
-    This example introduces a slight amount of complexity with interfaces to abstract the ``Restaurant`` class and the various ``Meal`` classes. 
+        This example introduces a slight amount of complexity with interfaces to abstract the ``Restaurant`` class and the various ``Meal`` classes. 
 
-    The ``Restaurant`` class (**Creator**) now has a **factory method** to handle creation of ``Meal`` subclasses (**Products**).
+        The ``Restaurant`` class (**Creator**) now has a **factory method** to handle creation of ``Meal`` subclasses (**Products**).
 
-    As seen on line 21 of the driver code, it does not matter whether the ``restaurant`` variable (line 6) is defined with a ``ChineseRestaurant`` or ``ItalianRestaurant`` class, both will not break the rest of the code. This is because both subclasses inherit from the ``Restaurant`` class.
+        As seen on line 21 of the driver code, it does not matter whether the ``restaurant`` variable (line 6) is defined with a ``ChineseRestaurant`` or ``ItalianRestaurant`` class, both will not break the rest of the code. This is because both subclasses inherit from the ``Restaurant`` class.
 
-    With this implementation we've fixed issues that broke the following SOLID principles: 
+        With this implementation we've fixed issues that broke the following SOLID principles: 
 
-    - Single responsibility principle: if new meals need to be added, none of the classes need to be modified. Instead, all that needs to be done is to create a new ``Restaurant`` subclass and a new ``Meal`` subclass. 
-    - Open-Closed principle: same as single responsibility principle
-    - Dependency Inversion: the factory method moved the creation of meals to the concrete ``Restaurant`` classes.
+        - Single responsibility principle: if new meals need to be added, none of the classes need to be modified. Instead, all that needs to be done is to create a new ``Restaurant`` subclass and a new ``Meal`` subclass. 
+        - Open-Closed principle: same as single responsibility principle
+        - Dependency Inversion: the factory method moved the creation of meals to the concrete ``Restaurant`` classes.
+    
+    === "Python"
 
-## When To Use 
+        ```python title="Example Code"
+        # Product Class
+        class Notification:
+            # Abstract
+            def send(self): ...
+
+
+        # Concrete Product Subclass
+        class TeamsNotification(Notification):
+            def send(self):
+                print("TEAMS NOTIFICATION: sup")
+
+
+        # Concrete Product Subclass
+        class SMSNotification(Notification):
+            def send(self):
+                print("SMS NOTIFICATION: yo")
+
+
+        # Creator Class
+        class Sender:
+            # Abstract Factory Method
+            def createNotification(self): ...  # Abstract or can return some default
+
+            def notify(self):
+                notification: Notification = self.createNotification()
+                notification.send()
+
+
+        # Concrete Creator Subclass
+        class TeamsSender(Sender):
+            def createNotification(self):
+                return TeamsNotification()
+
+
+        # Concrete Creator Subclass
+        class SMSSender(Sender):
+            def createNotification(self):
+                return SMSNotification()
+        ```
+
+        ```python title="Driver Code"
+        sender_type = "teams"
+        sender: Sender = Sender()
+
+        if sender_type == "teams":
+            sender = TeamsSender()
+        elif sender_type == "sms":
+            sender = SMSSender()
+        else:
+            raise ValueError(f"Sender type {sender_type} not supported")
+
+        sender.notify()
+        ```
+
+        ```title="Output"
+        TEAMS NOTIFICATION: sup
+        ```
+
+        The ``Sender`` class acts as a guideline for the various **concrete creator subclasses** (``TeamsSender`` and ``SMSSender``). Both must implement the **abstract factory method** ``createNotification``, each creating their respective ``Notification`` product (``TeamsNotification`` or ``SMSNotification``). 
+
+        A user can safely assume the functions in ``Sender`` will be available for any ``Sender`` subclasses. This enables them to extend the code and handle multiple subclasses, but never having to touch the central parent ``Sender`` class.
+
+        !!! note "python specific implementation notes"
+
+            In traditionally strongly-typed OOP languages, the **creator parent class** is an *abstract class* and the **product parent class** is an *interface*
+
+            In python, we can duck type everything so theres multiple ways we can implement them: 
+                - python protocol 
+                - ABC library: indicate its an abstract class
+                - regular duck typing 
+
+## Analysis
+
+### SOLID principles
+
+- Single responsibility principle: the pattern utilizes the *concrete create subclasses* to extend supporting additional *product subclasses*. This means the primary *concrete class* does not need to be refactored when extending. 
+- Open-Closed principle: (same as single responsibility principle) no need to edit primary *concrete class* when extending.
+- Liskov substitution principle: because client depends on abstractions (concrete class and product interface), the subclasses can be replaced without breaking the workflow.
+- Dependency inversion: actual creation of *products* are in the *concrete subclass* and depends on the abstraction set by the *abstract factory method*.  
+
+### When to use?
 
 - When you don't know beforehand the exact *Products* or types of the objects your code should work with. 
 - When you want to provide users a way to extend its internal components
+
+### Pros & Cons
+
+Pros: 
+
+- Decouples creation and usage (clients only interact with abstractions in parent classes)
+- Supports Open/Closed principle (new products doesn't require changing existing code)
+- Flexible and extensible
+- Centralize object creation (all in factory method)
+- Encourages single responsibility (each product subclass handles its own behavior)
+
+Cons:
+
+- Class explosion (need new *creator subclass* and *product subclass* for each new product)
+- Increased complexity
 
 ## Resources
 
