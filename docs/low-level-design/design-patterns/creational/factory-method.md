@@ -1,9 +1,3 @@
-<!-- list of things to do 
-TODO: Add python non factory example
-TODO: Redo c# factory example
-TODO: Redo c# non factory example
-TODO: read over and fix mistakes
--->
 # Factory Method
 
 ## Overview
