@@ -1,8 +1,10 @@
 # Abstract Factory
 
+## Overview
+
 The **Abstract Factory** design pattern allows for the production of *families* of related objects without specifying their concrete classes. 
 
-## Structure
+### Structure
 
 Below is an example of the abstract factory structure
 
@@ -21,141 +23,128 @@ Below is an example of the abstract factory structure
 
 ## Abstract Factory Example
 
-Imagine a program that simulates two computer component manufacturers that produce monitors and GPUs only. 
+Imagine building a generic tool to spin up various cloud services. This tool handles the following cloud service providers: 
 
-- Two companies: ASUS and MSI
-- Components (or products) they produce: Monitors and GPUs
+- AWS
+- Azure
 
-This is a good example of when to use the abstract factory design patterns since there are two different sets (or family) of products. 
+The services the tool spins up are: 
 
-- Set 1 = ASUS, Set 2 = MSI
-- Products = monitors & GPUs
+- Databases (AmazonRDS for AWS and AzureDB for Azure)
+- Virtual Machines (AmazonEC2 for AWS and AzureVM for Azure)
+
+This is a good example to integrate the **abstract factory** design patterns since there are two sets/family (AWS/Azure) of products (Database/VMs)
+
+!!! note "Try It Out!"
+    Try to create an abstract factory class to handle this feature! You can take a look at the ``Non Abstract Factory Example`` to get started.
 
 ### Non Abstract Factory Example
 
 ???+ Example "Non Abstract Factory Example"
 
-    === "C#"
+    === "Python"
 
-        ```c# linenums="1" title="Example Code" hl_lines="50-61 63-74"
-        // Product (Abstract Class)
-        public abstract class Gpu
-        {
-            public abstract void Assemble();
-        }
+        ```python linenums="1" title="Example Code" hl_lines="55-71"
+        # Product Abstract Class
+        class Database:
+            def create_tables():
+                pass
 
-        // Product (Abstract Class)
-        public abstract class Monitor
-        {
-            public abstract void Assemble();
-        }
+            def get_data():
+                pass
 
 
-        // Product (Concrete Class)
-        public class AsusGpu : Gpu
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling ASUS GPU");
-            }
-        }
+        # Concrete Product Subclass
+        class AmazonRDS(Database):
+            def create_tables(self):
+                print("[AWS]: create tables")
 
-        // Product (Concrete Class)
-        public class AsusMonitor : Monitor
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling ASUS Monitor");
-            }
-        }
+            def get_data(self):
+                print("[AWS]: getting data")
 
-        // Product (Concrete Class)
-        public class MsiGpu : Gpu
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling MSI GPU");
-            }
-        }
 
-        // Product (Concrete Class)
-        public class MsiMonitor : Monitor
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling MSI Monitor");
-            }
-        }
+        # Concrete Product Subclass
+        class AzureDB(Database):
+            def create_tables(self):
+                print("[Azure]: create tables")
 
-        public class AsusManufacturer 
-        {
-            public Gpu CreateGpu()
-            {
-                return new AsusGpu();
-            }
+            def get_data(self):
+                print("[Azure]: getting data")
 
-            public Monitor CreateMonitor()
-            {
-                return new AsusMonitor();        
-            }
-        }
 
-        public class MsiManufacturer
-        {
-            public Gpu CreateGpu()
-            {
-                return new MsiGpu();
-            }
+        # Product Abstract Class
+        class VirtualMachine:
+            def start_instance():
+                pass
 
-            public Monitor CreateMonitor()
-            {
-                return new MsiMonitor();
-            }
-        }
+            def stop_instance():
+                pass
+
+
+        # Concrete Product Subclass
+        class AmazonEC2(VirtualMachine):
+            def start_instance(self):
+                print("[AWS]: starting ec2 instance")
+
+            def stop_instance(self):
+                print("[AWS]: stopping ec2 instance")
+
+
+        # Concrete Product Subclass
+        class AzureVM(VirtualMachine):
+            def start_instance(self):
+                print("[Azure]: starting AVM instance")
+
+            def stop_instance(self):
+                print("[Azure]: stopping AVM instance")
+
+
+        # Factory pattern
+        class CloudFactory:
+            def create_database(self, cloud_service: str) -> Database:
+                if cloud_service == "Azure":
+                    return AzureDB()
+                elif cloud_service == "Amazon":
+                    return AmazonRDS()
+                else:
+                    ValueError(f"Cloud service {cloud_service} not supported")
+
+            def create_virtual_machine(self, cloud_service: str) -> VirtualMachine:
+                if cloud_service == "Azure":
+                    return AzureVM()
+                elif cloud_service == "Amazon":
+                    return AmazonEC2()
+                else:
+                    ValueError(f"Cloud service {cloud_service} not supported")
         ```
 
-        ```c# linenums="1" title="Driver Code"
-        static void Main(string[] args)
-        {
-            var desiredCompany = "MSI";
-
-            if (desiredCompany == "ASUS")
-            {
-                AsusManufacturer asus = new AsusManufacturer();
-                asus.CreateGpu();
-                asus.CreateMonitor();
-            }
-            else if (desiredCompany == "MSI")
-            {
-                MsiManufacturer msi = new MsiManufacturer();
-                msi.CreateGpu();
-                msi.CreateMonitor();
-            }
-            else
-            {
-                throw new Exception("Invalid Company");
-            }
-        }
+        ```python title="Client Code"
+        cloud = CloudFactory2()
+        cloud_service="Azure"
+        db = cloud.create_database(cloud_service)
+        vm = cloud.create_virtual_machine(cloud_service)
+        db.create_tables()
+        vm.start_instance()
+        
+        cloud_service="Amazon"
+        db = cloud.create_database(cloud_service)
+        vm = cloud.create_virtual_machine(cloud_service)
+        db.create_tables()
+        vm.start_instance()
         ```
 
         ```title="Output"
-        Assembling MSI GPU
-        Assembling MSI Monitor 
+        [AWS]: create tables
+        [AWS]: starting ec2 instance
+        [Azure]: create tables
+        [Azure]: starting AVM instance
         ```
 
-    This implementation uses a design pattern similar to the factory pattern (not to be confused with the [**factory method**](factory-method.md) pattern). 
-    
-    - ``AsusManufacturer`` is a factory that contains methods to create ASUS products (GPU and Monitor)
-    - ``MsiManufacturer`` is a factory that contains methods to create MSI products (GPU and Monitor)
+        This implementation uses a design pattern similar to the factory pattern (not to be confused with the [**factory method**](factory-method.md) pattern).
 
-    The issue with this implementation can be seen in the driver code. The code expects either a ``AsusManufacturer`` or ``MsiManufacturer`` object. Lets say the client code gets expanded with more behaviors that is dependent on the manufacturer classes, that code would need to continue to handle both type of manufacturer classes. 
+        The ``CloudFactory`` class uses the factory pattern to construct the two services ``Database`` and ``VirtualMachine`` with the ``create_database`` and ``create_virtual_machine`` function. Both these functions need the parameter ``cloud_service`` to determine what type of database or virtual machine needs to be created (AWS or Azure).
 
-    This issue becomes bigger when a new manufacturer type gets introduce. All the extended behavior would need to be updated again to handle a third manufacturer.
-
-    This implementation breaks the following SOLID principles: 
-
-    - Single responsibility principle: New reason to change = client code would now need to be updated if adding new family of products
-    - Open-Closed principle: Adding a new family of products will break all client code
+        This becomes an issue when additional cloud providers are extended to this program. Both the ``create_database`` and ``create_virtual_machine`` functions would need to be refactored to handle additional cloud providers. This breaks the SOLID principle.
 
 ### Abstract Factory Example
 
@@ -163,134 +152,127 @@ This is a good example of when to use the abstract factory design patterns since
 
     === "C#"
 
-        ```c# linenums="1" title="Example Code" 
-        // Abstract Factory (Abstract Class)
-        public abstract class Company
-        {
-            public abstract Gpu CreateGpu();
-            public abstract Monitor CreateMonitor();
-        }
+        ```python linenums="1" title="Example Code" 
+        # Product Abstract Class
+        class Database:
+            def create_tables():
+                pass
 
-        // Product (Abstract Class)
-        public abstract class Gpu
-        {
-            public abstract void Assemble();
-        }
+            def get_data():
+                pass
 
-        // Product (Abstract Class)
-        public abstract class Monitor 
-        {
-            public abstract void Assemble();
-        }
 
-        // Factory (Concrete Class) 
-        public class AsusManufacturer : Company
-        {
-            public override Gpu CreateGpu()
-            {
-                return new AsusGpu();
-            }
+        # Concrete Product Subclass
+        class AmazonRDS(Database):
+            def create_tables(self):
+                print("[AWS]: create tables")
 
-            public override Monitor CreateMonitor()
-            {
-                return new AsusMonitor();        
-            }
-        }
+            def get_data(self):
+                print("[AWS]: getting data")
 
-        // Factory (Concrete Class)
-        public class MsiManufacturer : Company
-        {
-            public override Gpu CreateGpu()
-            {
-                return new MsiGpu();
-            }
 
-            public override Monitor CreateMonitor()
-            {
-                return new MsiMonitor();
-            }
-        }
+        # Concrete Product Subclass
+        class AzureDB(Database):
+            def create_tables(self):
+                print("[Azure]: create tables")
 
-        // Product (Concrete Class)
-        public class AsusGpu : Gpu
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling ASUS GPU");
-            }
-        }
+            def get_data(self):
+                print("[Azure]: getting data")
 
-        // Product (Concrete Class)
-        public class AsusMonitor : Monitor 
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling ASUS Monitor");
-            }
-        }
-        
-        // Product (Concrete Class)
-        public class MsiGpu : Gpu
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling MSI GPU");
-            }
-        }
 
-        // Product (Concrete Class)
-        public class MsiMonitor : Monitor 
-        {
-            public override void Assemble()
-            {
-                Console.WriteLine("Assembling MSI Monitor");
-            }
-        }
-        ```
+        # Product Abstract Class
+        class VirtualMachine:
+            def start_instance():
+                pass
 
-        ```c# linenums="1" title="Driver Code" hl_lines="4 8 13 20-21"
-        static void Main(string[] args)
-        {
-            var desiredCompany = "MSI";
-            Company company;
+            def stop_instance():
+                pass
 
-            if (desiredCompany == "ASUS")
-            {
-                company = new AsusManufacturer();
 
-            }
-            else if (desiredCompany == "MSI")
-            {
-                company = new MsiManufacturer();
-            }
-            else
-            {
-                throw new Exception("Invalid Company");
-            }
+        # Concrete Product Subclass
+        class AmazonEC2(VirtualMachine):
+            def start_instance(self):
+                print("[AWS]: starting ec2 instance")
 
-            company.CreateGpu();
-            company.CreateMonitor();
-        }
+            def stop_instance(self):
+                print("[AWS]: stopping ec2 instance")
+
+
+        # Concrete Product Subclass
+        class AzureVM(VirtualMachine):
+            def start_instance(self):
+                print("[Azure]: starting AVM instance")
+
+            def stop_instance(self):
+                print("[Azure]: stopping AVM instance")
+
+
+        # Abstract Factory Class
+        class CloudFactory:
+            def create_database() -> Database:
+                pass
+
+            def create_virtual_machine() -> VirtualMachine:
+                pass
+
+
+        # Concrete Factory Subclass
+        class AmazonCloudFactory(CloudFactory):
+            def create_database(self):
+                return AmazonRDS()
+
+            def create_virtual_machine(self):
+                return AmazonEC2()
+
+
+        # Concrete Factory Subclass
+        class AzureCloudFactory(CloudFactory):
+            def create_database(self):
+                return AzureDB()
+
+            def create_virtual_machine(self):
+                return AzureVM()
         ``` 
 
-        ```title="Output"
-        Assembling MSI GPU
-        Assembling MSI Monitor
+        ```python title="Client Code"
+        # Amazon cloud
+        cloud = AmazonCloudFactory()
+
+        db = cloud.create_database()
+        vm = cloud.create_virtual_machine()
+
+        db.create_tables()
+        vm.start_instance()
+
+        # Azure cloud
+        cloud = AzureCloudFactory()
+
+        db = cloud.create_database()
+        vm = cloud.create_virtual_machine()
+
+        db.create_tables()
+        vm.start_instance()
         ```
 
-    This example introduces the **abstract factory** ``Company`` which acts as the interface to build a family of products. 
+        ```title="Output"
+        [AWS]: create tables
+        [AWS]: starting ec2 instance
+        [Azure]: create tables
+        [Azure]: starting AVM instance
+        ```
 
-    The ``AsusManufacturer`` and ``MsiManufacturer`` classes are subclasses of the **abstract factory** and handles creating the respective set of products. 
+        This example introduces the **abstract factory class** ``CloudFactory** which acts as the blueprint on building the two concrete factories ``AmazonCloudFactory`` and ``AzureCloudFactory``. The **abstract factory class** ensures that both subclass factories implement all the functions to spin up the two services (database and virtual machine).
 
-    In the driver code on line 20-21, either manufacturer subclass can be assigned to the ``company`` variable without breaking the rest of the code. This is due to the abstract factory. The abstract factory ensures that each implementation has all the methods the rest of the code expects to see. 
+        In the driver code, any ``CloudFactory`` object can be used. Since all ``CloudFactory`` classes are subclasses of the **abstract factory class**, they should be swappable.
 
-    This implementation fixes the following SOLID principles: 
+## Analysis
 
-    - Single responsibility principle: new family of products can be added but it won't break the driver code
-    - Open-Closed principle: family of products can be swapped without breaking (line 20-21 in driver code)
-     
+### SOLID principles
 
-## When To Use 
+- Single responsibility principle: new family of products can be added without having to refactor any existing functions
+- Open-Closed principle: family of products can be swapped without breaking code
+
+### When to use?
 
 - Usually, most people will start with a [**factory method**](factory-method.md)
 - Use when code needs to work with various families of related product, but you don't want it to depend on the concrete classes of those products (might be unknown beforehand or simply want to allow for further extensibility)

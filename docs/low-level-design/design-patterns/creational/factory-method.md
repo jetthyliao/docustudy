@@ -131,7 +131,7 @@ It also has a class ``Sender`` to construct ``Notifications`` and trigger sendin
                 return SMSNotification()
         ```
 
-        ```python title="Driver Code"
+        ```python title="Client Code"
         sender_type = "teams"
         sender: Sender = Sender()
 
