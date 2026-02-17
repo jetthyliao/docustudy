@@ -24,7 +24,7 @@ The **Factory Method** design pattern defines an interface for creating objects,
 
 ### Problem
 
-Imagine a new feature to send notifications. It initially supports Microsoft Teams, but is extended later to also support SMS notifications.
+Imagine a new feature to send notifications. It initially supports Microsoft Teams, but is later extended to support SMS notifications.
 
 This program has two classes to handle notifications: 
 
@@ -41,179 +41,59 @@ It also has a class ``Sender`` to construct ``Notifications`` and trigger sendin
 
 ???+ Example "Non Factory Method Example"
 
-    === "C#"
+    === "Python"
 
-        ```c# linenums="1" title="Example Code" hl_lines="19-35" 
-        public class ItalianMeal 
-        {
-            public void Cook()
-            {
-                Console.WriteLine("Preparing a delizioso Italian meal");
-            }
-        }
+        ```python linenums="1" title="Example Code" 
+        # Product Interface Class
+        class Notification:
+            def send(self): ...
 
-        public class ChineseMeal
-        {
-            public void Cook()
-            {
-                Console.WriteLine("Preparing a succulent Chinese meal");
-            }
-        }
 
-        public class Restaurant
-        {
-            public void OrderMeal(string mealPreference)
-            { 
-                if (mealPreference == "Chinese")
-                {
-                    ChineseMeal chineseMeal = new ChineseMeal();
-                    chineseMeal.Cook();
-                }
-                else if (mealPreference == "Italian")
-                {
-                    ItalianMeal italianMeal = new ItalianMeal();
-                    italianMeal.Cook();
-                }
-                else
-                {
-                    throw new Exception("Invalid meal preference");
-                }
-            }
+        # Concrete Product Subclass
+        class TeamsNotification(Notification):
+            def send(self):
+                print("TEAMS NOTIFICATION: sup")
 
-            // Additional Business Logic...
-        }
+
+        # Concrete Product Subclass
+        class SMSNotification(Notification):
+            def send(self):
+                print("SMS NOTIFICATION: yo")
+
+
+        class Sender:
+            def create_notification(self, sender_type: str):
+                if sender_type == "teams":
+                    return TeamsNotification()
+                elif sender_type == "sms":
+                    return SMSNotification()
+                else:
+                    raise ValueError(f"Sender type {sender_type} not supported")
+
+            def notify(self, sender_type):
+                notification: Notification = self.create_notification(sender_type)
+                notification.send()
         ```
 
-        ```c# linenums="1" title="Driver Code"
-        static void Main(string[] args)
-        { 
-            // var mealPreference = "Italian";
-            var mealPreference = "Chinese";
-            Restaurant restaurant = new Restaurant();
-            restaurant.OrderMeal(mealPreference);
-        }
+        ```python title="Client Code"
+        sender = Sender()
+        sender.notify("teams")
+        sender.notify("sms")
         ```
 
         ```title="Output"
-        Preparing a delizioso Italian meal
-        Preparing a succulent Chinese meal
+        TEAMS NOTIFICATION: sup
+        SMS NOTIFICATION: yo
         ```
 
-    Thl main issue with this implementation is the ``OrderMeal`` function in lines 19-35. Every time the restaurant needs to perform a task (such as cooking the meal), it must first know what type of meal (``ItalianMeal`` or ``ChineseMeal``) its dealing with. This causes a tight coupling between various meals and the ``Restaurant`` class since adding new meals or changes to the meals constructors require updating the ``Restaurant`` class. 
+        This implementation handles the two notifications ``TeamsNotification`` and ``SMSNotification`` with the ``Sender`` class. The ``Sender`` class has a function called ``create_notification`` which takes in a string to indicate the type of notification the sender should send. 
 
-    This implementation breaks the following SOLID principles:
-
-    - Single Responsibility Principle: ``Restaurant`` class has two reasons to be modified now: new meal classes being added and business logic updates to ``Restaurant`` class
-    - Open-Closed Principle: if new meal classes are added, the ``Restaurant`` class needs to be modified. 
-    - Dependency Inversion Principle: the ``Restaurant`` class depends on the ``ChineseMeal`` and ``ItalianMeal`` class.
+        The issue with this implementation is if a new notification type were to be added, the ``create_notification`` function would need to be refactored to handle that. This breaks multiple SOLID principles.
 
 ### Factory Method Example
 
 ???+ Example "Factory Method Example"
 
-    === "C#"
-
-        ```c# linenums="1" title="Example Code" hl_lines="4-5 16-20"
-        // Creator (Interface)
-        public interface Restaurant
-        {
-            // Factory Method
-            public abstract Meal CreateMeal();
-
-            public void OrderMeal()
-            {
-                Meal meal = CreateMeal();
-                meal.Cook();
-            }
-
-            // Additional Business Logic...
-        }
-
-        // Product (Interface)
-        public interface Meal
-        {
-            public void Cook();
-        }
-
-        // Creator (Concrete Class)
-        public class ItalianRestaurant : Restaurant
-        {
-            public Meal CreateMeal()
-            {
-                return new ItalianMeal();
-            }
-        }
-
-        // Creator (Concrete Class)
-        public class ChineseRestaurant : Restaurant
-        {
-            public Meal CreateMeal()
-            {
-                return new ChineseMeal();
-            }
-        }
-
-        // Product (Concrete Class)
-        public class ItalianMeal : Meal
-        {
-            public void Cook()
-            {
-                Console.WriteLine("Preparing a delizioso Italian meal");
-            }
-        }
-
-        // Product (Concrete Class)
-        public class ChineseMeal : Meal
-        {
-            public void Cook()
-            {
-                Console.WriteLine("Preparing a succulent Chinese meal");
-            }
-        }
-        ```
-
-        ```c# linenums="1" title="Driver Code" hl_lines="6 10 14 21"
-        static void Main(string[] args)
-        {
-            // var mealPreference = "Italian";
-            var mealPreference = "Chinese";
-
-            Restaurant restaurant;
-
-            if (mealPreference == "Chinese")
-            {
-                restaurant = new ChineseRestaurant();
-            }
-            else if (mealPreference == "Italian")
-            {
-                restaurant = new ItalianRestaurant();
-            }
-            else
-            {
-                throw new Exception("Invalid meal preference");
-            }
-
-            restaurant.OrderMeal();
-        }
-        ```
-
-        ```title="Output"
-        Preparing a delizioso Italian meal
-        Preparing a succulent Chinese meal
-        ```
-    
-        This example introduces a slight amount of complexity with interfaces to abstract the ``Restaurant`` class and the various ``Meal`` classes. 
-
-        The ``Restaurant`` class (**Creator**) now has a **factory method** to handle creation of ``Meal`` subclasses (**Products**).
-
-        As seen on line 21 of the driver code, it does not matter whether the ``restaurant`` variable (line 6) is defined with a ``ChineseRestaurant`` or ``ItalianRestaurant`` class, both will not break the rest of the code. This is because both subclasses inherit from the ``Restaurant`` class.
-
-        With this implementation we've fixed issues that broke the following SOLID principles: 
-
-        - Single responsibility principle: if new meals need to be added, none of the classes need to be modified. Instead, all that needs to be done is to create a new ``Restaurant`` subclass and a new ``Meal`` subclass. 
-        - Open-Closed principle: same as single responsibility principle
-        - Dependency Inversion: the factory method moved the creation of meals to the concrete ``Restaurant`` classes.
-    
     === "Python"
 
         ```python title="Example Code"
@@ -238,22 +118,22 @@ It also has a class ``Sender`` to construct ``Notifications`` and trigger sendin
         # Creator Class
         class Sender:
             # Abstract Factory Method
-            def createNotification(self): ...  # Abstract or can return some default
+            def create_notification(self): ...  # Abstract or can return some default
 
             def notify(self):
-                notification: Notification = self.createNotification()
+                notification: Notification = self.create_notification()
                 notification.send()
 
 
         # Concrete Creator Subclass
         class TeamsSender(Sender):
-            def createNotification(self):
+            def create_notification(self):
                 return TeamsNotification()
 
 
         # Concrete Creator Subclass
         class SMSSender(Sender):
-            def createNotification(self):
+            def create_notification(self):
                 return SMSNotification()
         ```
 
@@ -275,9 +155,9 @@ It also has a class ``Sender`` to construct ``Notifications`` and trigger sendin
         TEAMS NOTIFICATION: sup
         ```
 
-        The ``Sender`` class acts as a guideline for the various **concrete creator subclasses** (``TeamsSender`` and ``SMSSender``). Both must implement the **abstract factory method** ``createNotification``, each creating their respective ``Notification`` product (``TeamsNotification`` or ``SMSNotification``). 
+        The ``Sender`` class acts as a guideline for the various **concrete creator subclasses** (``TeamsSender`` and ``SMSSender``). All subclasses must implement the **abstract factory method** ``create_notification``, each implementation creating their respective ``Notification`` product (``TeamsNotification`` or ``SMSNotification``). 
 
-        A user can safely assume the functions in ``Sender`` will be available for any ``Sender`` subclasses. This enables them to extend the code and handle multiple subclasses, but never having to touch the central parent ``Sender`` class.
+        A user can safely assume the **abstract factory method** in ``Sender`` is implemented in any ``Sender`` subclasses. This enables them to extend the code and handle multiple subclasses, but never having to touch the central parent ``Sender`` class.
 
         !!! note "python specific implementation notes"
 
