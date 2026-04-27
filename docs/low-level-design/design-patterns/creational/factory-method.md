@@ -20,12 +20,12 @@ The **Factory Method** design pattern defines an interface for creating objects,
 
 Imagine a new feature to send notifications. It initially supports Microsoft Teams, but is later extended to support SMS notifications.
 
-This program has two classes to handle notifications: 
+This program has two ``Notification`` classes. They both have a function ``send`` that handles sending a notification: 
 
 - ``TeamsNotification``
 - ``SMSNotification``
 
-It also has a class ``Sender`` to construct ``Notifications`` and trigger sending messages on them.
+The program also contains a class ``Sender`` to construct a ``Notification`` object. It has a function ``notify`` that triggers the ``send`` function in the current ``Notification`` object. 
 
 !!! note "Try It Out!"
     Try to integrate the factory method to create this feature! You can take a look at the ``Non Factory Example`` to get started.
@@ -158,9 +158,10 @@ It also has a class ``Sender`` to construct ``Notifications`` and trigger sendin
             In traditionally strongly-typed OOP languages, the **creator parent class** is an *abstract class* and the **product parent class** is an *interface*
 
             In python, we can duck type everything so theres multiple ways we can implement them: 
-                - python protocol 
-                - ABC library: indicate its an abstract class
-                - regular duck typing 
+
+            - python protocol 
+            - ABC library: indicate its an abstract class
+            - regular duck typing 
 
 ## Analysis
 
